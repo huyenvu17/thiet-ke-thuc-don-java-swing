@@ -1,26 +1,41 @@
 package doanthietkethucdon;
 
 import dao.DatabaseConnection;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.ImageIcon;
-import ui.QuanLyNguyenLieuPanel;
+import ui.QuanLyPanel;
+import ui.ThietKeThucDonPanel;
+import ui.DanhSachThucDonPanel;
+import ui.HoSoPanel;
 
 /**
  * Main application class
  */
 public class MainApp extends JFrame {
     
-    // Standard size for menu icons (16x16 pixels is the standard size for menu icons)
-    private static final int ICON_SIZE = 16;
+    // Main content panel with CardLayout
+    private JPanel contentPanel;
+    private CardLayout cardLayout;
+    
+    // Panel names for CardLayout
+    private static final String QUAN_LY_PANEL = "quanLyPanel";
+    private static final String THIET_KE_THUC_DON_PANEL = "thietKeThucDonPanel";
+    private static final String DANH_SACH_THUC_DON_PANEL = "danhSachThucDonPanel";
+    private static final String HO_SO_PANEL = "hoSoPanel";
     
     public MainApp() {
         initUI();
@@ -33,70 +48,98 @@ public class MainApp extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
-        // create menu bar
+        // Create content panel with CardLayout
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
+        
+        // Create panel instances
+        QuanLyPanel quanLyPanel = new QuanLyPanel();
+        ThietKeThucDonPanel thietKeThucDonPanel = new ThietKeThucDonPanel();
+        DanhSachThucDonPanel danhSachThucDonPanel = new DanhSachThucDonPanel();
+        HoSoPanel hoSoPanel = new HoSoPanel();
+        
+        // Add panels to content panel with card names
+        contentPanel.add(quanLyPanel, QUAN_LY_PANEL);
+        contentPanel.add(thietKeThucDonPanel, THIET_KE_THUC_DON_PANEL);
+        contentPanel.add(danhSachThucDonPanel, DANH_SACH_THUC_DON_PANEL);
+        contentPanel.add(hoSoPanel, HO_SO_PANEL);
+        
+        // Add content panel to frame
+        add(contentPanel, BorderLayout.CENTER);
+        
+        // Show the initial panel
+        cardLayout.show(contentPanel, QUAN_LY_PANEL);
+        
+        // Create menu bar
         JMenuBar menuBar = new JMenuBar();
+        
+        // Create menus
         JMenu quanlyMenu = new JMenu("Quản lý");
         JMenu thucdonMenu = new JMenu("Thực đơn");
         JMenu taikhoanMenu = new JMenu("Tài khoản");
         
-        // Set icons for main menus
-        quanlyMenu.setIcon(loadIcon("/icons/manage.png"));
-        thucdonMenu.setIcon(loadIcon("/icons/menu.png"));
-        taikhoanMenu.setIcon(loadIcon("/icons/account.png"));
+        // Create menu items
+        JMenuItem thietkethucdonMenuItem = new JMenuItem("Thiết kế thực đơn");
+        JMenuItem dsthucdonMenuItem = new JMenuItem("Danh sách thực đơn");
+        JMenuItem hosoMenuItem = new JMenuItem("Hồ sơ");
+        JMenuItem exitMenuItem = new JMenuItem("Thoát");
         
-        // Create menu items with icons
-        JMenuItem nguyenlieuMenuItem = new JMenuItem("Nguyên liệu", loadIcon("/icons/ingredient.png"));
-        JMenuItem congthucmonanMenuItem = new JMenuItem("Công thức món ăn", loadIcon("/icons/recipe.png"));
-        JMenuItem monanMenuItem = new JMenuItem("Món ăn", loadIcon("/icons/dish.png"));
-        JMenuItem thietkethucdonMenuItem = new JMenuItem("Thiết kế thực đơn", loadIcon("/icons/design.png"));
-        JMenuItem dsthucdonMenuItem = new JMenuItem("Danh sách thực đơn", loadIcon("/icons/list.png"));
-        JMenuItem hosoMenuItem = new JMenuItem("Hồ sơ", loadIcon("/icons/profile.png"));
-        JMenuItem exitMenuItem = new JMenuItem("Thoát", loadIcon("/icons/exit.png"));
+        // Set icons using absolute path to resources
+        thietkethucdonMenuItem.setIcon(new ImageIcon("src/main/resources/icons/menu-design.png"));
+        dsthucdonMenuItem.setIcon(new ImageIcon("src/main/resources/icons/menu-list.png"));
+        hosoMenuItem.setIcon(new ImageIcon("src/main/resources/icons/profile.png"));
         
-        quanlyMenu.add(nguyenlieuMenuItem);
-        quanlyMenu.add(congthucmonanMenuItem);
-        quanlyMenu.add(monanMenuItem);
+        // Add MouseListener to quanlyMenu to show panel when clicked
+        quanlyMenu.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(contentPanel, QUAN_LY_PANEL);
+            }
+        });
+        
+        // Add action listeners to menu items to switch panels
+        thietkethucdonMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(contentPanel, THIET_KE_THUC_DON_PANEL);
+            }
+        });
+        
+        dsthucdonMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(contentPanel, DANH_SACH_THUC_DON_PANEL);
+            }
+        });
+        
+        hosoMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cardLayout.show(contentPanel, HO_SO_PANEL);
+            }
+        });
+        
+        exitMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Will handle logout later
+                JOptionPane.showMessageDialog(MainApp.this, "Chức năng đăng xuất sẽ được xử lý sau");
+            }
+        });
+        
+        // Add menu items to menus
         thucdonMenu.add(thietkethucdonMenuItem);
         thucdonMenu.add(dsthucdonMenuItem);
         taikhoanMenu.add(hosoMenuItem);
         taikhoanMenu.add(exitMenuItem);
         
+        // Add menus to menu bar
         menuBar.add(quanlyMenu);
         menuBar.add(thucdonMenu);
         menuBar.add(taikhoanMenu);
         
         // Set menuBar to the JFrame
         setJMenuBar(menuBar);
-        
-        // Create a tabbed pane
-        JTabbedPane tabbedPane = new JTabbedPane();
-        
-        // Add tabs for different functionality
-        tabbedPane.addTab("Nguyên liệu", new QuanLyNguyenLieuPanel());
-        tabbedPane.addTab("Món ăn", new JPanel()); // Placeholder - will implement later
-        tabbedPane.addTab("Thiết kế thực đơn", new JPanel()); // Placeholder - will implement later
-        
-        add(tabbedPane);
-    }
-    
-    /**
-     * Helper method to load icons from resources
-     * @param path Path to the icon resource
-     * @return ImageIcon or null if resource not found
-     */
-    private ImageIcon loadIcon(String path) {
-        try {
-            java.net.URL imgURL = getClass().getResource(path);
-            if (imgURL != null) {
-                return new ImageIcon(imgURL);
-            } else {
-                System.err.println("Couldn't find icon: " + path);
-                return null;
-            }
-        } catch (Exception e) {
-            System.err.println("Error loading icon: " + path + " - " + e.getMessage());
-            return null;
-        }
     }
     
     /**
