@@ -1,0 +1,17 @@
+package dao;
+
+import entity.CongThucMonAnEntity;
+import java.util.List;
+
+/**
+ * Interface for CongThucMonAn Data Access Object
+ */
+public interface ICongThucMonAnDao {
+    List<CongThucMonAnEntity> getAllCongThucMonAn();
+    List<CongThucMonAnEntity> getCongThucByMonAnId(int monAnId);
+    int addCongThucMonAn(CongThucMonAnEntity entity);
+    CongThucMonAnEntity getCongThucMonAnById(int id);
+    boolean updateCongThucMonAn(CongThucMonAnEntity entity);
+    boolean deleteCongThucMonAn(int id);
+    boolean deleteCongThucByMonAnId(int monAnId);
+} 

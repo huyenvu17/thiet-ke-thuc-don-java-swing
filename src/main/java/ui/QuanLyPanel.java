@@ -27,8 +27,8 @@ public class QuanLyPanel extends JPanel {
         
         // Create panels for each tab
         JPanel nguyenLieuPanel = new QuanLyNguyenLieuPanel();
-        JPanel congThucMonAnPanel = new JPanel(); // Placeholder for now
-        JPanel monAnPanel = new JPanel(); // Placeholder for now
+        JPanel congThucMonAnPanel = new CongThucMonAnPanel();
+        JPanel monAnPanel = new MonAnPanel();
         
         // Add tabs to the tabbed pane
         tabbedPane.addTab("Nguyên Liệu", nguyenLieuPanel);

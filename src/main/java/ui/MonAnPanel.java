@@ -1,8 +1,7 @@
 package ui;
 
-import dao.NguyenLieuDao;
-import entity.NguyenLieuEntity;
-
+import dao.MonAnDao;
+import entity.MonAnEntity;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -13,24 +12,29 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JTextArea;
+import javax.swing.BorderFactory;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel for managing ingredients
+ * Panel for managing dishes
  */
-public class QuanLyNguyenLieuPanel extends JPanel {
+public class MonAnPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
-    private JTextField tenField, donViField, donGiaField;
-    private NguyenLieuDao nguyenLieuDao;
-    private JButton themButton, editButton, deleteButton, backButton;
+    private JTextField tenField;
+    private JComboBox<String> loaiMonAnComboBox;
+    private JTextArea cachCheBienArea;
     private JPanel buttonsPanel;
+    private JButton themButton, editButton, deleteButton, backButton;
+    private MonAnDao monAnDao;
     
-    public QuanLyNguyenLieuPanel() {
+    public MonAnPanel() {
         try {
-            nguyenLieuDao = NguyenLieuDao.getInstance();
+            monAnDao = MonAnDao.getInstance();
             initComponents();
-            loadNguyenLieu();
+            loadMonAn();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khởi tạo: " + ex.getMessage(), 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -39,13 +43,14 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     
     private void initComponents() {
         setLayout(new BorderLayout());
-        JLabel titleLabel = new JLabel("Quản Lý Nguyên Liệu", JLabel.CENTER);
+        JLabel titleLabel = new JLabel("Quản Lý Món Ăn", JLabel.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
 
         // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
+        
         // Create table model with column names
-        model = new DefaultTableModel(new String[]{"ID", "Tên nguyên liệu", "Đơn vị", "Đơn giá"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "Tên món ăn", "Loại món ăn", "Cách chế biến"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false; // Make table non-editable
@@ -60,17 +65,21 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         JPanel inputPanel = new JPanel(new BorderLayout());
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         
-        formPanel.add(new JLabel("Tên nguyên liệu:"));
+        formPanel.add(new JLabel("Tên món ăn:"));
         tenField = new JTextField();
         formPanel.add(tenField);
         
-        formPanel.add(new JLabel("Đơn vị:"));
-        donViField = new JTextField();
-        formPanel.add(donViField);
+        formPanel.add(new JLabel("Loại món ăn:"));
+        loaiMonAnComboBox = new JComboBox<>(new String[]{"sang", "trua", "xe"});
+        formPanel.add(loaiMonAnComboBox);
         
-        formPanel.add(new JLabel("Đơn giá:"));
-        donGiaField = new JTextField();
-        formPanel.add(donGiaField);
+        formPanel.add(new JLabel("Cách chế biến:"));
+        cachCheBienArea = new JTextArea();
+        cachCheBienArea.setRows(3);
+        cachCheBienArea.setLineWrap(true);
+        cachCheBienArea.setWrapStyleWord(true);
+        JScrollPane cachCheBienScrollPane = new JScrollPane(cachCheBienArea);
+        formPanel.add(cachCheBienScrollPane);
         
         // Create buttons panel
         buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -94,20 +103,21 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         // Add panels to input panel
         inputPanel.add(formPanel, BorderLayout.CENTER);
         inputPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         add(inputPanel, BorderLayout.SOUTH);
 
         // Add action listeners for buttons
         themButton.addActionListener(e -> {
-            addNguyenLieu();
+            addMonAn();
         });
         
         editButton.addActionListener(e -> {
-            editNguyenLieu();
+            editMonAn();
         });
         
         deleteButton.addActionListener(e -> {
-            deleteNguyenLieu();
+            deleteMonAn();
         });
         
         backButton.addActionListener(e -> {
@@ -123,8 +133,8 @@ public class QuanLyNguyenLieuPanel extends JPanel {
                 if (selectedRow != -1) {
                     // Row selected - load data and show edit/delete buttons
                     tenField.setText(model.getValueAt(selectedRow, 1).toString());
-                    donViField.setText(model.getValueAt(selectedRow, 2).toString());
-                    donGiaField.setText(model.getValueAt(selectedRow, 3).toString());
+                    loaiMonAnComboBox.setSelectedItem(model.getValueAt(selectedRow, 2).toString());
+                    cachCheBienArea.setText(model.getValueAt(selectedRow, 3).toString());
                     
                     // Show edit/delete/back buttons, hide add button
                     themButton.setVisible(false);
@@ -142,99 +152,99 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         });
     }
     
-    private void loadNguyenLieu() {
+    private void loadMonAn() {
         model.setRowCount(0); // Clear existing rows
         
-        for (NguyenLieuEntity nl : nguyenLieuDao.getAllNguyenLieu()) {
+        // Load from database
+        for (MonAnEntity monAn : monAnDao.getAllMonAn()) {
             Object[] row = {
-                nl.id(),
-                nl.tenNguyenLieu(),
-                nl.donViTinh(),
-                nl.donGia()
+                monAn.id(),
+                monAn.tenMon(),
+                monAn.loaiMon(),
+                monAn.cachCheBien()
             };
             model.addRow(row);
         }
     }
     
-    private void addNguyenLieu() {
+    private void addMonAn() {
         String ten = tenField.getText().trim();
-        String donVi = donViField.getText().trim();
-        String donGiaStr = donGiaField.getText().trim();
+        String loaiMonAn = loaiMonAnComboBox.getSelectedItem().toString();
+        String cachCheBien = cachCheBienArea.getText().trim();
         
         // Validate input
-        if (ten.isEmpty() || donVi.isEmpty() || donGiaStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên món ăn", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         try {
-            BigDecimal donGia = new BigDecimal(donGiaStr);
-            // Create with id=0 (it will be ignored in the insert method)
-            NguyenLieuEntity nl = new NguyenLieuEntity(0, ten, donVi, donGia);
+            // Create a new MonAnEntity
+            MonAnEntity monAn = new MonAnEntity(0, ten, loaiMonAn, cachCheBien);
             
-            int newId = nguyenLieuDao.addNguyenLieu(nl);
+            // Save to database
+            int newId = monAnDao.addMonAn(monAn);
             if (newId > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thành công!");
+                JOptionPane.showMessageDialog(this, "Thêm món ăn thành công!");
                 // Reset fields and reload data
                 clearFields();
-                loadNguyenLieu();
+                loadMonAn();
             } else {
-                JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thất bại", 
+                JOptionPane.showMessageDialog(this, "Thêm món ăn thất bại", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-            
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Đơn giá phải là số", 
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    private void editNguyenLieu() {
+    private void editMonAn() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu cần sửa", 
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn món ăn cần sửa", 
                     "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         
         int id = (int) model.getValueAt(selectedRow, 0);
         String ten = tenField.getText().trim();
-        String donVi = donViField.getText().trim();
-        String donGiaStr = donGiaField.getText().trim();
+        String loaiMonAn = loaiMonAnComboBox.getSelectedItem().toString();
+        String cachCheBien = cachCheBienArea.getText().trim();
         
         // Validate input
-        if (ten.isEmpty() || donVi.isEmpty() || donGiaStr.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên món ăn", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         try {
-            BigDecimal donGia = new BigDecimal(donGiaStr);
-            NguyenLieuEntity nl = new NguyenLieuEntity(id, ten, donVi, donGia);
+            // Create updated MonAnEntity
+            MonAnEntity monAn = new MonAnEntity(id, ten, loaiMonAn, cachCheBien);
             
-            boolean success = nguyenLieuDao.updateNguyenLieu(nl);
+            // Update in database
+            boolean success = monAnDao.updateMonAn(monAn);
             if (success) {
-                JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thành công!");
+                JOptionPane.showMessageDialog(this, "Cập nhật món ăn thành công!");
                 // Reset fields and reload data
                 clearFields();
-                loadNguyenLieu();
+                loadMonAn();
             } else {
-                JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thất bại", 
+                JOptionPane.showMessageDialog(this, "Cập nhật món ăn thất bại", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
-            
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Đơn giá phải là số", 
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
-    private void deleteNguyenLieu() {
+    private void deleteMonAn() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu cần xóa", 
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn món ăn cần xóa", 
                     "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -242,18 +252,23 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         int id = (int) model.getValueAt(selectedRow, 0);
         
         int confirm = JOptionPane.showConfirmDialog(this, 
-                "Bạn có chắc chắn muốn xóa nguyên liệu này?", 
+                "Bạn có chắc chắn muốn xóa món ăn này?", 
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = nguyenLieuDao.deleteNguyenLieu(id);
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thành công!");
-                // Reset fields and reload data
-                clearFields();
-                loadNguyenLieu();
-            } else {
-                JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thất bại", 
+            try {
+                boolean success = monAnDao.deleteMonAn(id);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
+                    // Reset fields and reload data
+                    clearFields();
+                    loadMonAn();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa món ăn thất bại", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -261,8 +276,8 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     
     private void clearFields() {
         tenField.setText("");
-        donViField.setText("");
-        donGiaField.setText("");
+        loaiMonAnComboBox.setSelectedIndex(0);
+        cachCheBienArea.setText("");
         table.clearSelection();
         
         // Reset button visibility

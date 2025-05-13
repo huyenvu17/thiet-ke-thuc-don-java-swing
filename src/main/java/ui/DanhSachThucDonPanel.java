@@ -1,43 +1,305 @@
 package ui;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JScrollPane;
-import java.awt.BorderLayout;
-import java.awt.Font;
+import entity.ChiTietThucDonEntity;
+import entity.ThucDonEntity;
+import service.ThucDonService;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Panel for displaying the list of menus
  */
 public class DanhSachThucDonPanel extends JPanel {
     
+    private final ThucDonService thucDonService;
+    private JTable thucDonTable;
+    private DefaultTableModel thucDonModel;
+    private JTable chiTietTable;
+    private DefaultTableModel chiTietModel;
+    private JButton deleteButton;
+    private JButton printButton;
+    private JButton refreshButton;
+    
     public DanhSachThucDonPanel() {
+        thucDonService = new ThucDonService();
         initComponents();
+        loadThucDonList();
     }
     
     private void initComponents() {
-        // Set layout to BorderLayout
         setLayout(new BorderLayout());
         
-        // Create a label for now (placeholder)
+        // Title
         JLabel titleLabel = new JLabel("Danh Sách Thực Đơn", JLabel.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-        
-        // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
         
-        // Create a placeholder table
-        String[] columnNames = {"ID", "Tên Thực Đơn", "Ngày Tạo", "Số Món", "Tổng Chi Phí"};
-        Object[][] data = {
-            {"TD001", "Thực đơn tiệc cưới", "01/01/2024", "10", "5,000,000 VNĐ"},
-            {"TD002", "Thực đơn sinh nhật", "15/02/2024", "5", "2,000,000 VNĐ"},
-            {"TD003", "Thực đơn họp mặt", "10/03/2024", "8", "3,500,000 VNĐ"}
+        // Main content split pane
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setResizeWeight(0.5); // Divide space equally
+        
+        // Top panel: Thuc Don list
+        JPanel thucDonPanel = new JPanel(new BorderLayout());
+        thucDonPanel.setBorder(BorderFactory.createTitledBorder("Danh sách thực đơn"));
+        
+        thucDonModel = new DefaultTableModel(
+                new String[]{"ID", "Tên thực đơn", "Số ngày"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         
-        JTable table = new JTable(data, columnNames);
-        JScrollPane scrollPane = new JScrollPane(table);
+        thucDonTable = new JTable(thucDonModel);
+        JScrollPane thucDonScrollPane = new JScrollPane(thucDonTable);
+        thucDonPanel.add(thucDonScrollPane, BorderLayout.CENTER);
         
-        add(scrollPane, BorderLayout.CENTER);
+        // Add buttons for the ThucDon panel
+        JPanel thucDonButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        deleteButton = new JButton("Xóa");
+        printButton = new JButton("In thực đơn");
+        refreshButton = new JButton("Làm mới");
+        
+        deleteButton.setEnabled(false);
+        printButton.setEnabled(false);
+        
+        thucDonButtonPanel.add(refreshButton);
+        thucDonButtonPanel.add(deleteButton);
+        thucDonButtonPanel.add(printButton);
+        thucDonPanel.add(thucDonButtonPanel, BorderLayout.SOUTH);
+        
+        // Bottom panel: Chi Tiet Thuc Don
+        JPanel chiTietPanel = new JPanel(new BorderLayout());
+        chiTietPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết thực đơn"));
+        
+        chiTietModel = new DefaultTableModel(
+                new String[]{"Ngày", "Bữa", "Món ăn"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        chiTietTable = new JTable(chiTietModel);
+        JScrollPane chiTietScrollPane = new JScrollPane(chiTietTable);
+        chiTietPanel.add(chiTietScrollPane, BorderLayout.CENTER);
+        
+        // Add the panels to the split pane
+        splitPane.setTopComponent(thucDonPanel);
+        splitPane.setBottomComponent(chiTietPanel);
+        
+        add(splitPane, BorderLayout.CENTER);
+        
+        // Add listeners
+        thucDonTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = thucDonTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    int thucDonId = (int) thucDonModel.getValueAt(selectedRow, 0);
+                    loadChiTietThucDon(thucDonId);
+                    deleteButton.setEnabled(true);
+                    printButton.setEnabled(true);
+                } else {
+                    chiTietModel.setRowCount(0);
+                    deleteButton.setEnabled(false);
+                    printButton.setEnabled(false);
+                }
+            }
+        });
+        
+        deleteButton.addActionListener(e -> deleteSelectedThucDon());
+        printButton.addActionListener(e -> printSelectedThucDon());
+        refreshButton.addActionListener(e -> loadThucDonList());
+    }
+    
+    private void loadThucDonList() {
+        thucDonModel.setRowCount(0);
+        List<Map<String, Object>> thucDonList = thucDonService.getAllThucDonWithDetails();
+        
+        for (Map<String, Object> item : thucDonList) {
+            ThucDonEntity thucDon = (ThucDonEntity) item.get("thucDon");
+            Object[] row = {
+                    thucDon.id(),
+                    thucDon.tenThucDon(),
+                    thucDon.soNgay()
+            };
+            thucDonModel.addRow(row);
+        }
+        
+        // Clear chi tiet table when loading new data
+        chiTietModel.setRowCount(0);
+    }
+    
+    private void loadChiTietThucDon(int thucDonId) {
+        chiTietModel.setRowCount(0);
+        Map<String, Object> thucDonDetails = thucDonService.getThucDonWithDetails(thucDonId);
+        
+        if (thucDonDetails.isEmpty()) {
+            return;
+        }
+        
+        @SuppressWarnings("unchecked")
+        List<ChiTietThucDonEntity> chiTietList = (List<ChiTietThucDonEntity>) thucDonDetails.get("chiTietList");
+        
+        for (ChiTietThucDonEntity chiTiet : chiTietList) {
+            // Format the meal type
+            String buoi = formatBuoi(chiTiet.buoi());
+            
+            Object[] row = {
+                    chiTiet.ngay(),
+                    buoi,
+                    chiTiet.tenMon()
+            };
+            chiTietModel.addRow(row);
+        }
+    }
+    
+    private String formatBuoi(String buoi) {
+        switch (buoi) {
+            case "sang":
+                return "Bữa sáng";
+            case "trua":
+                return "Bữa trưa";
+            case "xe":
+                return "Bữa tối";
+            default:
+                return buoi;
+        }
+    }
+    
+    private void deleteSelectedThucDon() {
+        int selectedRow = thucDonTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một thực đơn để xóa", 
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        int thucDonId = (int) thucDonModel.getValueAt(selectedRow, 0);
+        String tenThucDon = (String) thucDonModel.getValueAt(selectedRow, 1);
+        
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Bạn có chắc chắn muốn xóa thực đơn '" + tenThucDon + "'?", 
+                "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = thucDonService.deleteThucDon(thucDonId);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Đã xóa thực đơn thành công!");
+                loadThucDonList();
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể xóa thực đơn. Vui lòng thử lại.", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void printSelectedThucDon() {
+        int selectedRow = thucDonTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một thực đơn để in", 
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        int thucDonId = (int) thucDonModel.getValueAt(selectedRow, 0);
+        String tenThucDon = (String) thucDonModel.getValueAt(selectedRow, 1);
+        
+        Map<String, Object> thucDonDetails = thucDonService.getThucDonWithDetails(thucDonId);
+        
+        if (thucDonDetails.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không thể tìm thấy chi tiết thực đơn", 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        ThucDonEntity thucDon = (ThucDonEntity) thucDonDetails.get("thucDon");
+        @SuppressWarnings("unchecked")
+        List<ChiTietThucDonEntity> chiTietList = (List<ChiTietThucDonEntity>) thucDonDetails.get("chiTietList");
+        
+        // Create a preview dialog with a formatted text area
+        JDialog printPreviewDialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), 
+                "Xem trước bản in: " + tenThucDon, true);
+        printPreviewDialog.setLayout(new BorderLayout());
+        
+        JTextArea previewArea = new JTextArea();
+        previewArea.setEditable(false);
+        previewArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        
+        // Format the preview content
+        StringBuilder content = new StringBuilder();
+        content.append("THỰC ĐƠN: ").append(thucDon.tenThucDon()).append("\n");
+        content.append("Số ngày: ").append(thucDon.soNgay()).append("\n\n");
+        
+        // Group by day
+        for (int day = 1; day <= thucDon.soNgay(); day++) {
+            content.append("Ngày ").append(day).append(":\n");
+            
+            // Get the meals for this day
+            boolean hasSang = false;
+            boolean hasTrua = false;
+            boolean hasXe = false;
+            
+            for (ChiTietThucDonEntity chiTiet : chiTietList) {
+                if (chiTiet.ngay() == day) {
+                    switch (chiTiet.buoi()) {
+                        case "sang":
+                            content.append("  - Bữa sáng: ").append(chiTiet.tenMon()).append("\n");
+                            hasSang = true;
+                            break;
+                        case "trua":
+                            content.append("  - Bữa trưa: ").append(chiTiet.tenMon()).append("\n");
+                            hasTrua = true;
+                            break;
+                        case "xe":
+                            content.append("  - Bữa tối: ").append(chiTiet.tenMon()).append("\n");
+                            hasXe = true;
+                            break;
+                    }
+                }
+            }
+            
+            // Note any missing meals
+            if (!hasSang) content.append("  - Bữa sáng: (chưa có món ăn)\n");
+            if (!hasTrua) content.append("  - Bữa trưa: (chưa có món ăn)\n");
+            if (!hasXe) content.append("  - Bữa tối: (chưa có món ăn)\n");
+            
+            content.append("\n");
+        }
+        
+        previewArea.setText(content.toString());
+        
+        JScrollPane scrollPane = new JScrollPane(previewArea);
+        printPreviewDialog.add(scrollPane, BorderLayout.CENTER);
+        
+        // Add buttons for printing and closing
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton printButton = new JButton("In");
+        JButton closeButton = new JButton("Đóng");
+        
+        printButton.addActionListener(e -> {
+            try {
+                previewArea.print();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(printPreviewDialog, 
+                        "Lỗi khi in: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        closeButton.addActionListener(e -> printPreviewDialog.dispose());
+        
+        buttonPanel.add(printButton);
+        buttonPanel.add(closeButton);
+        printPreviewDialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        printPreviewDialog.setSize(500, 600);
+        printPreviewDialog.setLocationRelativeTo(this);
+        printPreviewDialog.setVisible(true);
     }
 } 

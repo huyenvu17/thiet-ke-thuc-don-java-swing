@@ -10,14 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for ThucDonEntity
- * Handles database operations for menus
+ * Data Access Object for ThucDon entity
+ * Implements the Singleton pattern
  */
 public class ThucDonDao implements IThucDonDao {
     
     private static ThucDonDao instance;
     
-    public static ThucDonDao getInstance() {
+    /**
+     * Get singleton instance of ThucDonDao
+     * @return ThucDonDao instance
+     */
+    public static synchronized ThucDonDao getInstance() {
         if (ThucDonDao.instance == null) {
             ThucDonDao.instance = new ThucDonDao();
         }
@@ -31,123 +35,146 @@ public class ThucDonDao implements IThucDonDao {
     }
     
     /**
-     * Map a database result set to a ThucDonEntity object
+     * Get all menus from the database
+     * @return List of ThucDonEntity objects
      */
-    private ThucDonEntity mapResultSetToThucDon(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
-        String tenThucDon = rs.getString("ten_thuc_don");
-        int soNgay = rs.getInt("so_ngay");
-        
-        return new ThucDonEntity(id, tenThucDon, soNgay);
-    }
-
     @Override
     public List<ThucDonEntity> getAllThucDon() {
-        List<ThucDonEntity> thucDons = new ArrayList<>();
+        List<ThucDonEntity> thucDonList = new ArrayList<>();
+        String query = "SELECT id, ten_thuc_don, so_ngay FROM thucdon";
         
         try (Connection conn = new DatabaseConnection().connection;
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM thucdon")) {
+             ResultSet rs = stmt.executeQuery(query)) {
             
             while (rs.next()) {
-                thucDons.add(mapResultSetToThucDon(rs));
+                ThucDonEntity thucDon = new ThucDonEntity(
+                        rs.getInt("id"),
+                        rs.getString("ten_thuc_don"),
+                        rs.getInt("so_ngay")
+                );
+                thucDonList.add(thucDon);
             }
         } catch (SQLException e) {
-            System.err.println("Error retrieving all thuc don: " + e.getMessage());
+            System.err.println("Error retrieving ThucDon list: " + e.getMessage());
             e.printStackTrace();
         }
         
-        return thucDons;
+        return thucDonList;
     }
     
-    @Override
-    public ThucDonEntity getById(int id) {
-        ThucDonEntity entity = null;
-        
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM thucdon WHERE id = ?")) {
-            
-            stmt.setInt(1, id);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    entity = mapResultSetToThucDon(rs);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error retrieving thuc don by id: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return entity;
-    }
-
+    /**
+     * Add a new menu to the database
+     * @param thucDon ThucDonEntity to add
+     * @return ID of the newly inserted menu, or -1 if failed
+     */
     @Override
     public int addThucDon(ThucDonEntity thucDon) {
-        String sql = "INSERT INTO thucdon (ten_thuc_don, so_ngay) VALUES (?, ?)";
+        String query = "INSERT INTO thucdon (ten_thuc_don, so_ngay) VALUES (?, ?)";
         int newId = -1;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             
-            stmt.setString(1, thucDon.tenThucDon());
-            stmt.setInt(2, thucDon.soNgay());
+            pstmt.setString(1, thucDon.tenThucDon());
+            pstmt.setInt(2, thucDon.soNgay());
             
-            int affectedRows = stmt.executeUpdate();
-            
+            int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Creating ThucDon failed, no rows affected.");
             }
             
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     newId = generatedKeys.getInt(1);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error adding thuc don: " + e.getMessage());
+            System.err.println("Error adding ThucDon: " + e.getMessage());
             e.printStackTrace();
         }
         
         return newId;
     }
-
+    
+    /**
+     * Get a menu by ID
+     * @param id ID of the menu to retrieve
+     * @return ThucDonEntity if found, null otherwise
+     */
+    @Override
+    public ThucDonEntity getThucDonById(int id) {
+        String query = "SELECT id, ten_thuc_don, so_ngay FROM thucdon WHERE id = ?";
+        ThucDonEntity thucDon = null;
+        
+        try (Connection conn = new DatabaseConnection().connection;
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(1, id);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    thucDon = new ThucDonEntity(
+                            rs.getInt("id"),
+                            rs.getString("ten_thuc_don"),
+                            rs.getInt("so_ngay")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving ThucDon by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return thucDon;
+    }
+    
+    /**
+     * Update an existing menu in the database
+     * @param thucDon ThucDonEntity to update
+     * @return true if successful, false otherwise
+     */
     @Override
     public boolean updateThucDon(ThucDonEntity thucDon) {
-        String sql = "UPDATE thucdon SET ten_thuc_don = ?, so_ngay = ? WHERE id = ?";
+        String query = "UPDATE thucdon SET ten_thuc_don = ?, so_ngay = ? WHERE id = ?";
         boolean success = false;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             
-            stmt.setString(1, thucDon.tenThucDon());
-            stmt.setInt(2, thucDon.soNgay());
-            stmt.setInt(3, thucDon.id());
+            pstmt.setString(1, thucDon.tenThucDon());
+            pstmt.setInt(2, thucDon.soNgay());
+            pstmt.setInt(3, thucDon.id());
             
-            int affectedRows = stmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
             success = (affectedRows > 0);
         } catch (SQLException e) {
-            System.err.println("Error updating thuc don: " + e.getMessage());
+            System.err.println("Error updating ThucDon: " + e.getMessage());
             e.printStackTrace();
         }
         
         return success;
     }
-
+    
+    /**
+     * Delete a menu from the database by ID
+     * @param id ID of the menu to delete
+     * @return true if successful, false otherwise
+     */
     @Override
     public boolean deleteThucDon(int id) {
-        String sql = "DELETE FROM thucdon WHERE id = ?";
+        String query = "DELETE FROM thucdon WHERE id = ?";
         boolean success = false;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             
-            stmt.setInt(1, id);
+            pstmt.setInt(1, id);
             
-            int affectedRows = stmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
             success = (affectedRows > 0);
         } catch (SQLException e) {
-            System.err.println("Error deleting thuc don: " + e.getMessage());
+            System.err.println("Error deleting ThucDon: " + e.getMessage());
             e.printStackTrace();
         }
         

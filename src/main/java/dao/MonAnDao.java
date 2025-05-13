@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for MonAnEntity
- * Handles database operations for dishes
+ * Data Access Object for MonAn entity
  */
 public class MonAnDao implements IMonAnDao {
     
     private static MonAnDao instance;
     
-    public static MonAnDao getInstance() {
+    public static synchronized MonAnDao getInstance() {
         if (MonAnDao.instance == null) {
             MonAnDao.instance = new MonAnDao();
         }
@@ -31,129 +30,153 @@ public class MonAnDao implements IMonAnDao {
     }
     
     /**
-     * Map a database result set to a MonAnEntity object
+     * Get all dishes from the database
+     * @return List of MonAnEntity objects
      */
-    private MonAnEntity mapResultSetToMonAn(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
-        String tenMon = rs.getString("ten_mon");
-        String loaiMon = rs.getString("loai_mon");
-        String cachCheBien = rs.getString("cach_che_bien");
-        
-        return new MonAnEntity(id, tenMon, loaiMon, cachCheBien);
-    }
-
     @Override
     public List<MonAnEntity> getAllMonAn() {
-        List<MonAnEntity> monAns = new ArrayList<>();
+        List<MonAnEntity> monAnList = new ArrayList<>();
+        String query = "SELECT id, ten_mon, loai_mon, cach_che_bien FROM monan";
         
         try (Connection conn = new DatabaseConnection().connection;
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM monan")) {
+             ResultSet rs = stmt.executeQuery(query)) {
             
             while (rs.next()) {
-                monAns.add(mapResultSetToMonAn(rs));
+                MonAnEntity monAn = new MonAnEntity(
+                        rs.getInt("id"),
+                        rs.getString("ten_mon"),
+                        rs.getString("loai_mon"),
+                        rs.getString("cach_che_bien")
+                );
+                monAnList.add(monAn);
             }
         } catch (SQLException e) {
-            System.err.println("Error retrieving all mon an: " + e.getMessage());
+            System.err.println("Error retrieving MonAn list: " + e.getMessage());
             e.printStackTrace();
         }
         
-        return monAns;
+        return monAnList;
     }
     
-    @Override
-    public MonAnEntity getById(int id) {
-        MonAnEntity entity = null;
-        
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM monan WHERE id = ?")) {
-            
-            stmt.setInt(1, id);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    entity = mapResultSetToMonAn(rs);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error retrieving mon an by id: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return entity;
-    }
-
+    /**
+     * Add a new dish to the database
+     * @param monAn MonAnEntity to add
+     * @return ID of the newly inserted dish, or -1 if failed
+     */
     @Override
     public int addMonAn(MonAnEntity monAn) {
-        String sql = "INSERT INTO monan (ten_mon, loai_mon, cach_che_bien) VALUES (?, ?, ?)";
+        String query = "INSERT INTO monan (ten_mon, loai_mon, cach_che_bien) VALUES (?, ?, ?)";
         int newId = -1;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             
-            stmt.setString(1, monAn.tenMon());
-            stmt.setString(2, monAn.loaiMon());
-            stmt.setString(3, monAn.cachCheBien());
+            pstmt.setString(1, monAn.tenMon());
+            pstmt.setString(2, monAn.loaiMon());
+            pstmt.setString(3, monAn.cachCheBien());
             
-            int affectedRows = stmt.executeUpdate();
-            
+            int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Creating MonAn failed, no rows affected.");
+                return -1;
             }
             
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     newId = generatedKeys.getInt(1);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error adding mon an: " + e.getMessage());
+            System.err.println("Error adding MonAn: " + e.getMessage());
             e.printStackTrace();
         }
         
         return newId;
     }
-
+    
+    /**
+     * Update an existing dish in the database
+     * @param monAn MonAnEntity to update
+     * @return true if successful, false otherwise
+     */
     @Override
     public boolean updateMonAn(MonAnEntity monAn) {
-        String sql = "UPDATE monan SET ten_mon = ?, loai_mon = ?, cach_che_bien = ? WHERE id = ?";
+        String query = "UPDATE monan SET ten_mon = ?, loai_mon = ?, cach_che_bien = ? WHERE id = ?";
         boolean success = false;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             
-            stmt.setString(1, monAn.tenMon());
-            stmt.setString(2, monAn.loaiMon());
-            stmt.setString(3, monAn.cachCheBien());
-            stmt.setInt(4, monAn.id());
+            pstmt.setString(1, monAn.tenMon());
+            pstmt.setString(2, monAn.loaiMon());
+            pstmt.setString(3, monAn.cachCheBien());
+            pstmt.setInt(4, monAn.id());
             
-            int affectedRows = stmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
             success = (affectedRows > 0);
         } catch (SQLException e) {
-            System.err.println("Error updating mon an: " + e.getMessage());
+            System.err.println("Error updating MonAn: " + e.getMessage());
             e.printStackTrace();
         }
         
         return success;
     }
-
+    
+    /**
+     * Delete a dish from the database by ID
+     * @param id ID of the dish to delete
+     * @return true if successful, false otherwise
+     */
     @Override
     public boolean deleteMonAn(int id) {
-        String sql = "DELETE FROM monan WHERE id = ?";
+        String query = "DELETE FROM monan WHERE id = ?";
         boolean success = false;
         
         try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             
-            stmt.setInt(1, id);
+            pstmt.setInt(1, id);
             
-            int affectedRows = stmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
             success = (affectedRows > 0);
         } catch (SQLException e) {
-            System.err.println("Error deleting mon an: " + e.getMessage());
+            System.err.println("Error deleting MonAn: " + e.getMessage());
             e.printStackTrace();
         }
         
         return success;
+    }
+    
+    /**
+     * Get a dish by ID
+     * @param id ID of the dish to retrieve
+     * @return MonAnEntity if found, null otherwise
+     */
+    @Override
+    public MonAnEntity getMonAnById(int id) {
+        String query = "SELECT id, ten_mon, loai_mon, cach_che_bien FROM monan WHERE id = ?";
+        MonAnEntity entity = null;
+        
+        try (Connection conn = new DatabaseConnection().connection;
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(1, id);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    entity = new MonAnEntity(
+                        rs.getInt("id"),
+                        rs.getString("ten_mon"),
+                        rs.getString("loai_mon"),
+                        rs.getString("cach_che_bien")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving MonAn by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return entity;
     }
 } 
