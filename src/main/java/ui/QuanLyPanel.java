@@ -29,9 +29,11 @@ public class QuanLyPanel extends JPanel {
         JPanel nguyenLieuPanel = new QuanLyNguyenLieuPanel();
         JPanel congThucMonAnPanel = new CongThucMonAnPanel();
         JPanel monAnPanel = new MonAnPanel();
+        JPanel nhomThucPhamPanel = new NhomThucPhamPanel();
         
         // Add tabs to the tabbed pane
         tabbedPane.addTab("Nguyên Liệu", nguyenLieuPanel);
+        tabbedPane.addTab("Nhóm thực phẩm", nhomThucPhamPanel);
         tabbedPane.addTab("Công Thức Món Ăn", congThucMonAnPanel);
         tabbedPane.addTab("Món Ăn", monAnPanel);
         

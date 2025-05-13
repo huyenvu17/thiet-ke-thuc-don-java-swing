@@ -39,8 +39,15 @@ public class NguyenLieuDao implements INguyenLieuDao {
         String tenNguyenLieu = rs.getString("ten_nguyen_lieu");
         String donViTinh = rs.getString("don_vi_tinh");
         BigDecimal donGia = rs.getBigDecimal("don_gia");
+        int nhomThucPhamId = 0;
         
-        return new NguyenLieuEntity(id, tenNguyenLieu, donViTinh, donGia);
+        try {
+            nhomThucPhamId = rs.getInt("nhom_thuc_pham_id");
+        } catch (SQLException e) {
+            // Cột không tồn tại trong kết quả - giữ giá trị mặc định là 0
+        }
+        
+        return new NguyenLieuEntity(id, tenNguyenLieu, donViTinh, donGia, nhomThucPhamId);
     }
 
     @Override
@@ -49,7 +56,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
         
         try (Connection conn = new DatabaseConnection().connection;
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM nguyenlieu")) {
+             ResultSet rs = stmt.executeQuery("SELECT * FROM vw_nguyenlieu_theotennhom")) {
             
             while (rs.next()) {
                 nguyenLieus.add(mapResultSetToNguyenLieu(rs));

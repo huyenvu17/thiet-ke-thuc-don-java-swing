@@ -18,16 +18,27 @@ public class NguyenLieu {
     private String tenNguyenLieu;
     private String donViTinh;
     private BigDecimal donGia;
+    private int nhomThucPhamId;
 
     public NguyenLieu(
             int id,
             String tenNguyenLieu,
             String donViTinh,
             BigDecimal donGia) throws BHException {
+        this(id, tenNguyenLieu, donViTinh, donGia, 0);
+    }
+    
+    public NguyenLieu(
+            int id,
+            String tenNguyenLieu,
+            String donViTinh,
+            BigDecimal donGia,
+            int nhomThucPhamId) throws BHException {
         setId(id);
         setTenNguyenLieu(tenNguyenLieu);
         setDonViTinh(donViTinh);
         setDonGia(donGia);
+        setNhomThucPhamId(nhomThucPhamId);
     }
     
     /**
@@ -84,5 +95,19 @@ public class NguyenLieu {
      */
     public final void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
+    }
+    
+    /**
+     * @return the nhomThucPhamId
+     */
+    public int getNhomThucPhamId() {
+        return nhomThucPhamId;
+    }
+
+    /**
+     * @param nhomThucPhamId the nhomThucPhamId to set
+     */
+    public final void setNhomThucPhamId(int nhomThucPhamId) {
+        this.nhomThucPhamId = nhomThucPhamId;
     }
 }

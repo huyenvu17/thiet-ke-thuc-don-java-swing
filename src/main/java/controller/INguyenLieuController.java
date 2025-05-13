@@ -12,6 +12,8 @@ import java.util.List;
  * @author ADMIN
  */
 public interface INguyenLieuController {
-   List<NguyenLieuDTO> getAllKhachHang();
+   List<NguyenLieuDTO> getAllNguyenLieu();
     boolean addNguyenLieu(NguyenLieuDTO nlDto);
+    boolean updateNguyenLieu(NguyenLieuDTO nlDto);
+    boolean deleteNguyenLieu(int id);
 }

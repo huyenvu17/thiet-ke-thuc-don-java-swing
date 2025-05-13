@@ -9,7 +9,7 @@ public record NguyenLieuEntity(
         int id,
         String tenNguyenLieu,
         String donViTinh,
-        BigDecimal donGia
+        BigDecimal donGia,
+        int nhomThucPhamId
         ) {
-
 }

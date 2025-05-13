@@ -46,7 +46,7 @@ public class NguyenLieuService {
         this.nguyenLieuDao = dsNguyenLieu;
     }
 
-    public void loadAllKhachHangFromDatabase() {
+    public void loadAllNguyenLieuFromDatabase() {
         this.dsNguyenLieu.clear();
         List<NguyenLieuEntity> entityList = this.nguyenLieuDao.getAllNguyenLieu();
         for (NguyenLieuEntity entity : entityList) {
@@ -62,12 +62,21 @@ public class NguyenLieuService {
         return this.nguyenLieuDao.addNguyenLieu(toEntity(model)) > 0;
     }
 
+    public boolean updateNguyenLieu(NguyenLieu model) {
+        return this.nguyenLieuDao.updateNguyenLieu(toEntity(model));
+    }
+
+    public boolean deleteNguyenLieu(int id) {
+        return this.nguyenLieuDao.deleteNguyenLieu(id);
+    }
+
     public NguyenLieu toModel(NguyenLieuEntity entity) throws BHException {
         return new NguyenLieu(
                 entity.id(),
                 entity.tenNguyenLieu(),
                 entity.donViTinh(),
-                entity.donGia());
+                entity.donGia(),
+                entity.nhomThucPhamId());
     }
 
     public NguyenLieuEntity toEntity(NguyenLieu model) {
@@ -75,6 +84,7 @@ public class NguyenLieuService {
                 model.getId(),
                 model.getTenNguyenLieu(),
                 model.getDonViTinh(),
-                model.getDonGia());
+                model.getDonGia(),
+                model.getNhomThucPhamId());
     }
 }

@@ -15,6 +15,8 @@ public class NguyenLieuDTO {
     private String tenNguyenLieu;
     private String donViTinh;
     private BigDecimal donGia;
+    private int nhomThucPhamId;
+    private String tenNhomThucPham;
     
     // Default constructor
     public NguyenLieuDTO() {
@@ -28,11 +30,14 @@ public class NguyenLieuDTO {
     }
     
     // Constructor with all fields
-    public NguyenLieuDTO(int id, String tenNguyenLieu, String donViTinh, BigDecimal donGia) {
+    public NguyenLieuDTO(int id, String tenNguyenLieu, String donViTinh, BigDecimal donGia, 
+                        int nhomThucPhamId, String tenNhomThucPham) {
         this.id = id;
         this.tenNguyenLieu = tenNguyenLieu;
         this.donViTinh = donViTinh;
         this.donGia = donGia;
+        this.nhomThucPhamId = nhomThucPhamId;
+        this.tenNhomThucPham = tenNhomThucPham;
     }
     
     // Getters and Setters
@@ -66,6 +71,22 @@ public class NguyenLieuDTO {
 
     public void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
+    }
+    
+    public int getNhomThucPhamId() {
+        return nhomThucPhamId;
+    }
+    
+    public void setNhomThucPhamId(int nhomThucPhamId) {
+        this.nhomThucPhamId = nhomThucPhamId;
+    }
+    
+    public String getTenNhomThucPham() {
+        return tenNhomThucPham;
+    }
+    
+    public void setTenNhomThucPham(String tenNhomThucPham) {
+        this.tenNhomThucPham = tenNhomThucPham;
     }
     
     @Override
