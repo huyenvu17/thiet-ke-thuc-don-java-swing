@@ -1,26 +1,17 @@
 package doanthietkethucdon;
 
 import dao.DatabaseConnection;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import ui.QuanLyPanel;
 import ui.ThietKeThucDonPanel;
 import ui.DanhSachThucDonPanel;
 import ui.HoSoPanel;
+import jiconfont.swing.IconFontSwing;
+import jiconfont.icons.font_awesome.FontAwesome;
 
 /**
  * Main application class
@@ -40,106 +31,129 @@ public class MainApp extends JFrame {
     public MainApp() {
         initUI();
     }
-    
+
     private void initUI() {
-        // Set up the JFrame
+        // App icon
+        try {
+            ImageIcon appIcon = new ImageIcon(getClass().getResource("/logo.png"));
+            setIconImage(appIcon.getImage());
+        } catch (Exception e) {
+            System.err.println("Không thể tải biểu tượng ứng dụng: " + e.getMessage());
+        }
+        
+        IconFontSwing.register(FontAwesome.getIconFont());
         setTitle("Ứng Dụng Thiết Kế Thực Đơn");
         setSize(new Dimension(1000, 700));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
-        // Create content panel with CardLayout
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
         
-        // Create panel instances
+        // Danh sánh panels
         QuanLyPanel quanLyPanel = new QuanLyPanel();
         ThietKeThucDonPanel thietKeThucDonPanel = new ThietKeThucDonPanel();
         DanhSachThucDonPanel danhSachThucDonPanel = new DanhSachThucDonPanel();
         HoSoPanel hoSoPanel = new HoSoPanel();
         
-        // Add panels to content panel with card names
         contentPanel.add(quanLyPanel, QUAN_LY_PANEL);
         contentPanel.add(thietKeThucDonPanel, THIET_KE_THUC_DON_PANEL);
         contentPanel.add(danhSachThucDonPanel, DANH_SACH_THUC_DON_PANEL);
         contentPanel.add(hoSoPanel, HO_SO_PANEL);
         
+        // Toolbar menu
+        JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.setRollover(true);
+        toolBar.setBorderPainted(false);
+        toolBar.setBackground(new Color(240, 240, 240));
+        
+        Icon manageIcon = IconFontSwing.buildIcon(FontAwesome.COG, 20, new Color(50, 50, 50));
+        Icon menuDesignIcon = IconFontSwing.buildIcon(FontAwesome.CALENDAR, 20, new Color(50, 50, 50));
+        Icon menuListIcon = IconFontSwing.buildIcon(FontAwesome.LIST, 20, new Color(50, 50, 50));
+        Icon profileIcon = IconFontSwing.buildIcon(FontAwesome.USER, 20, new Color(50, 50, 50));
+        Icon exitIcon = IconFontSwing.buildIcon(FontAwesome.SIGN_OUT, 20, new Color(50, 50, 50));
+        
+        JButton btnQuanLy = createToolbarButton("Quản lý", manageIcon);
+        JButton btnThietKeThucDon = createToolbarButton("Thiết kế thực đơn", menuDesignIcon);
+        JButton btnDanhSachThucDon = createToolbarButton("Danh sách thực đơn", menuListIcon);
+        JButton btnHoSo = createToolbarButton("Hồ sơ", profileIcon);
+        JButton btnThoat = createToolbarButton("Thoát", exitIcon);
+        
+        btnQuanLy.addActionListener(e -> cardLayout.show(contentPanel, QUAN_LY_PANEL));
+        btnThietKeThucDon.addActionListener(e -> cardLayout.show(contentPanel, THIET_KE_THUC_DON_PANEL));
+        btnDanhSachThucDon.addActionListener(e -> cardLayout.show(contentPanel, DANH_SACH_THUC_DON_PANEL));
+        btnHoSo.addActionListener(e -> cardLayout.show(contentPanel, HO_SO_PANEL));
+        btnThoat.addActionListener(e -> {
+            int option = JOptionPane.showConfirmDialog(MainApp.this, 
+                    "Bạn có chắc chắn muốn thoát ứng dụng?", 
+                    "Xác nhận thoát", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                dispose();
+                System.exit(0);
+            }
+        });
+        
+        styleButton(btnQuanLy);
+        styleButton(btnThietKeThucDon);
+        styleButton(btnDanhSachThucDon);
+        styleButton(btnHoSo);
+        styleButton(btnThoat);
+        
+        // Add buttons to toolbar
+        toolBar.add(btnQuanLy);
+        toolBar.addSeparator(new Dimension(10, 0));
+        toolBar.add(btnThietKeThucDon);
+        toolBar.addSeparator(new Dimension(10, 0));
+        toolBar.add(btnDanhSachThucDon);
+        toolBar.addSeparator(new Dimension(10, 0));
+        toolBar.add(btnHoSo);
+        
+        // Add spacer and exit button at the right side
+        toolBar.add(Box.createHorizontalGlue());
+        toolBar.add(btnThoat);
+        
         // Add content panel to frame
         add(contentPanel, BorderLayout.CENTER);
+        add(toolBar, BorderLayout.NORTH);
         
         // Show the initial panel
         cardLayout.show(contentPanel, QUAN_LY_PANEL);
+    }
+    
+    /**
+     * Helper method to create a standardized toolbar button
+     */
+    private JButton createToolbarButton(String text, Icon icon) {
+        JButton button = new JButton(text);
+        if (icon != null) {
+            button.setIcon(icon);
+        }
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setMargin(new Insets(8, 15, 8, 15));
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        return button;
+    }
+
+    private void styleButton(JButton button) {
+        button.setFont(new Font(button.getFont().getName(), Font.PLAIN, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBackground(new Color(240, 240, 240));
         
-        // Create menu bar
-        JMenuBar menuBar = new JMenuBar();
-        
-        // Create menus
-        JMenu quanlyMenu = new JMenu("Quản lý");
-        JMenu thucdonMenu = new JMenu("Thực đơn");
-        JMenu taikhoanMenu = new JMenu("Tài khoản");
-        
-        // Create menu items
-        JMenuItem thietkethucdonMenuItem = new JMenuItem("Thiết kế thực đơn");
-        JMenuItem dsthucdonMenuItem = new JMenuItem("Danh sách thực đơn");
-        JMenuItem hosoMenuItem = new JMenuItem("Hồ sơ");
-        JMenuItem exitMenuItem = new JMenuItem("Thoát");
-        
-        // Set icons using absolute path to resources
-        thietkethucdonMenuItem.setIcon(new ImageIcon("src/main/resources/icons/menu-design.png"));
-        dsthucdonMenuItem.setIcon(new ImageIcon("src/main/resources/icons/menu-list.png"));
-        hosoMenuItem.setIcon(new ImageIcon("src/main/resources/icons/profile.png"));
-        
-        // Add MouseListener to quanlyMenu to show panel when clicked
-        quanlyMenu.addMouseListener(new MouseAdapter() {
+        // Add hover effect with listeners
+        button.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(contentPanel, QUAN_LY_PANEL);
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(new Color(220, 220, 220));
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(new Color(240, 240, 240));
             }
         });
-        
-        // Add action listeners to menu items to switch panels
-        thietkethucdonMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(contentPanel, THIET_KE_THUC_DON_PANEL);
-            }
-        });
-        
-        dsthucdonMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(contentPanel, DANH_SACH_THUC_DON_PANEL);
-            }
-        });
-        
-        hosoMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cardLayout.show(contentPanel, HO_SO_PANEL);
-            }
-        });
-        
-        exitMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Will handle logout later
-                JOptionPane.showMessageDialog(MainApp.this, "Chức năng đăng xuất sẽ được xử lý sau");
-            }
-        });
-        
-        // Add menu items to menus
-        thucdonMenu.add(thietkethucdonMenuItem);
-        thucdonMenu.add(dsthucdonMenuItem);
-        taikhoanMenu.add(hosoMenuItem);
-        taikhoanMenu.add(exitMenuItem);
-        
-        // Add menus to menu bar
-        menuBar.add(quanlyMenu);
-        menuBar.add(thucdonMenu);
-        menuBar.add(taikhoanMenu);
-        
-        // Set menuBar to the JFrame
-        setJMenuBar(menuBar);
     }
     
     /**

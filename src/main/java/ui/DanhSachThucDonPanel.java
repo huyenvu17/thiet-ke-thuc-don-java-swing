@@ -32,11 +32,12 @@ public class DanhSachThucDonPanel extends JPanel {
     }
     
     private void initComponents() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
         
         // Title
-        JLabel titleLabel = new JLabel("Danh Sách Thực Đơn", JLabel.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        JLabel titleLabel = new JLabel("DANH SÁCH THỰC ĐƠN", JLabel.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         add(titleLabel, BorderLayout.NORTH);
         
         // Main content split pane

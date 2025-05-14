@@ -6,6 +6,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Font;
@@ -28,11 +29,11 @@ public class HoSoPanel extends JPanel {
     private void initComponents() {
         // Set layout to BorderLayout
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
         
         // Create title
-        JLabel titleLabel = new JLabel("Thông Tin Hồ Sơ", JLabel.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        JLabel titleLabel = new JLabel("THÔNG TIN HỒ SƠ", JLabel.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         
         // Create form panel
         JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));

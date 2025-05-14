@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -47,9 +48,10 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     }
     
     private void initComponents() {
-        setLayout(new BorderLayout());
-        JLabel titleLabel = new JLabel("Quản Lý Nguyên Liệu", JLabel.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel titleLabel = new JLabel("QUẢN LÝ NGUYÊN LIỆU", JLabel.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
 
         // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
@@ -57,7 +59,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         model = new DefaultTableModel(new String[]{"ID", "Tên nguyên liệu", "Đơn vị", "Đơn giá", "Nhóm thực phẩm"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make table non-editable
+                return false;
             }
         };
         

@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import javax.swing.BorderFactory;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
@@ -52,9 +53,10 @@ public class CongThucMonAnPanel extends JPanel {
     }
     
     private void initComponents() {
-        setLayout(new BorderLayout());
-        JLabel titleLabel = new JLabel("Quản Lý Công Thức Món Ăn", JLabel.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel titleLabel = new JLabel("QUẢN LÝ CÔNG THỨC MÓN ĂN", JLabel.CENTER);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
 
         // Add components to panel
         add(titleLabel, BorderLayout.NORTH);

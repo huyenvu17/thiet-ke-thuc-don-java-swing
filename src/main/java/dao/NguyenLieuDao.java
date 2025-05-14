@@ -52,21 +52,21 @@ public class NguyenLieuDao implements INguyenLieuDao {
 
     @Override
     public List<NguyenLieuEntity> getAllNguyenLieu() {
-        List<NguyenLieuEntity> nguyenLieus = new ArrayList<>();
+        List<NguyenLieuEntity> dsNguyenLieu = new ArrayList<>();
         
         try (Connection conn = new DatabaseConnection().connection;
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM vw_nguyenlieu_theotennhom")) {
             
             while (rs.next()) {
-                nguyenLieus.add(mapResultSetToNguyenLieu(rs));
+                dsNguyenLieu.add(mapResultSetToNguyenLieu(rs));
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving all nguyen lieu: " + e.getMessage());
             e.printStackTrace();
         }
         
-        return nguyenLieus;
+        return dsNguyenLieu;
     }
 
     @Override

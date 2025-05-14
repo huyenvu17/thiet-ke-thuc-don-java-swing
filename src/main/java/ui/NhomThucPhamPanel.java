@@ -42,19 +42,19 @@ public class NhomThucPhamPanel extends JPanel {
      */
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(new EmptyBorder(10, 10, 10, 10));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
         
         // Panel tiêu đề
         JPanel titlePanel = new JPanel();
         JLabel titleLabel = new JLabel("QUẢN LÝ NHÓM THỰC PHẨM");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
         
-        // Panel chính chia làm 2 phần: bảng và form nhập liệu
+        // Panel chính chia làm 2 phần: bảng (trái) và form nhập liệu (phải)
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         
-        // Phần bảng danh sách nhóm thực phẩm
+        // Bảng danh sách đặt ở bên trái
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(BorderFactory.createTitledBorder("Danh sách nhóm thực phẩm"));
         
@@ -91,36 +91,35 @@ public class NhomThucPhamPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(nhomThucPhamTable);
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Phần form nhập liệu
+        // Form nhập liệu đặt ở bên phải
         JPanel formPanel = new JPanel(new BorderLayout());
         formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin nhóm thực phẩm"));
         
+        // Tạo panel cho các trường nhập liệu sử dụng GridBagLayout
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        inputPanel.setBorder(new EmptyBorder(10, 10, 5, 10));
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
         
-        // Tên nhóm
+        // Tên nhóm - label ở trên, input ở dưới
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.weightx = 1.0;
         inputPanel.add(new JLabel("Tên nhóm:"), gbc);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
+        gbc.gridy = 1;
         tenNhomField = new JTextField(20);
         inputPanel.add(tenNhomField, gbc);
         
-        // Mô tả
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
+        // Mô tả - label ở trên, textarea ở dưới
+        gbc.gridy = 2;
         inputPanel.add(new JLabel("Mô tả:"), gbc);
         
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        gbc.gridheight = 3;
+        gbc.gridy = 3;
+        gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         moTaArea = new JTextArea(5, 20);
         moTaArea.setLineWrap(true);
@@ -128,10 +127,9 @@ public class NhomThucPhamPanel extends JPanel {
         JScrollPane moTaScrollPane = new JScrollPane(moTaArea);
         inputPanel.add(moTaScrollPane, gbc);
         
-        formPanel.add(inputPanel, BorderLayout.CENTER);
-        
         // Panel chứa các nút thao tác
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 4, 10, 0));
+        buttonPanel.setBorder(new EmptyBorder(5, 10, 10, 10));
         
         themButton = new JButton("Thêm");
         suaButton = new JButton("Sửa");
@@ -176,8 +174,11 @@ public class NhomThucPhamPanel extends JPanel {
         buttonPanel.add(xoaButton);
         buttonPanel.add(lamMoiButton);
         
+        // Gắn input panel và button panel vào form panel
+        formPanel.add(inputPanel, BorderLayout.CENTER);
         formPanel.add(buttonPanel, BorderLayout.SOUTH);
         
+        // Gắn table panel và form panel vào main panel
         mainPanel.add(tablePanel);
         mainPanel.add(formPanel);
         
