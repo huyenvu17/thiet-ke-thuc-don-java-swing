@@ -70,6 +70,9 @@ public class NhomThucPhamPanel extends JPanel {
         nhomThucPhamTable = new JTable(tableModel);
         nhomThucPhamTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         nhomThucPhamTable.getTableHeader().setReorderingAllowed(false);
+        nhomThucPhamTable.getColumnModel().getColumn(0).setMinWidth(40);
+        nhomThucPhamTable.getColumnModel().getColumn(0).setMaxWidth(60);
+        nhomThucPhamTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         
         // Thêm sự kiện click chuột vào hàng trong bảng
         nhomThucPhamTable.addMouseListener(new MouseAdapter() {

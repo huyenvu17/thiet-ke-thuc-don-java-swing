@@ -62,7 +62,7 @@ public class CongThucMonAnPanel extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
         
         // Create table model with column names
-        model = new DefaultTableModel(new String[]{"ID", "Món ăn", "Nguyên liệu", "Khối lượng", "Đơn vị tính"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "Món ăn", "Nguyên liệu", "Khối lượng (kg)"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false; // Make table non-editable
@@ -70,6 +70,9 @@ public class CongThucMonAnPanel extends JPanel {
         };
         
         table = new JTable(model);
+        table.getColumnModel().getColumn(0).setMinWidth(40);
+        table.getColumnModel().getColumn(0).setMaxWidth(60);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -235,8 +238,7 @@ public class CongThucMonAnPanel extends JPanel {
                     congThuc.id(),
                     congThuc.tenMon(),
                     congThuc.tenNguyenLieu(),
-                    congThuc.khoiLuong(),
-                    congThuc.donViTinh()
+                    congThuc.khoiLuong()
                 };
                 model.addRow(row);
             }

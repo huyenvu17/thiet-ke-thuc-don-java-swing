@@ -37,7 +37,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
     private NguyenLieuEntity mapResultSetToNguyenLieu(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String tenNguyenLieu = rs.getString("ten_nguyen_lieu");
-        String donViTinh = rs.getString("don_vi_tinh");
+        Double khoiLuong = rs.getDouble("khoi_luong");
         BigDecimal donGia = rs.getBigDecimal("don_gia");
         int nhomThucPhamId = 0;
         
@@ -47,7 +47,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
             // Cột không tồn tại trong kết quả - giữ giá trị mặc định là 0
         }
         
-        return new NguyenLieuEntity(id, tenNguyenLieu, donViTinh, donGia, nhomThucPhamId);
+        return new NguyenLieuEntity(id, tenNguyenLieu, khoiLuong, donGia, nhomThucPhamId);
     }
 
     @Override
@@ -71,14 +71,14 @@ public class NguyenLieuDao implements INguyenLieuDao {
 
     @Override
     public int addNguyenLieu(NguyenLieuEntity entity) {
-        String sql = "INSERT INTO nguyenlieu (ten_nguyen_lieu, don_vi_tinh, don_gia) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO nguyenlieu (ten_nguyen_lieu, khoi_luong, don_gia) VALUES (?, ?, ?)";
         int newId = -1;
         
         try (Connection conn = new DatabaseConnection().connection;
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
             stmt.setString(1, entity.tenNguyenLieu());
-            stmt.setString(2, entity.donViTinh());
+            stmt.setDouble(2, entity.khoiLuong());
             stmt.setBigDecimal(3, entity.donGia());
             
             int affectedRows = stmt.executeUpdate();
@@ -128,14 +128,14 @@ public class NguyenLieuDao implements INguyenLieuDao {
      * Update an existing NguyenLieuEntity
      */
     public boolean updateNguyenLieu(NguyenLieuEntity entity) {
-        String sql = "UPDATE nguyenlieu SET ten_nguyen_lieu = ?, don_vi_tinh = ?, don_gia = ? WHERE id = ?";
+        String sql = "UPDATE nguyenlieu SET ten_nguyen_lieu = ?, khoi_luong = ?, don_gia = ? WHERE id = ?";
         boolean success = false;
         
         try (Connection conn = new DatabaseConnection().connection;
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, entity.tenNguyenLieu());
-            stmt.setString(2, entity.donViTinh());
+            stmt.setDouble(2, entity.khoiLuong());
             stmt.setBigDecimal(3, entity.donGia());
             stmt.setInt(4, entity.id());
             

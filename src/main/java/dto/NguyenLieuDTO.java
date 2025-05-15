@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class NguyenLieuDTO {
     private int id;
     private String tenNguyenLieu;
-    private String donViTinh;
+    private Double khoiLuong;
     private BigDecimal donGia;
     private int nhomThucPhamId;
     private String tenNhomThucPham;
@@ -23,18 +23,18 @@ public class NguyenLieuDTO {
     }
     
     // Constructor with all fields except ID
-    public NguyenLieuDTO(String tenNguyenLieu, String donViTinh, BigDecimal donGia) {
+    public NguyenLieuDTO(String tenNguyenLieu, Double khoiLuong, BigDecimal donGia) {
         this.tenNguyenLieu = tenNguyenLieu;
-        this.donViTinh = donViTinh;
+        this.khoiLuong = khoiLuong;
         this.donGia = donGia;
     }
     
     // Constructor with all fields
-    public NguyenLieuDTO(int id, String tenNguyenLieu, String donViTinh, BigDecimal donGia, 
+    public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, BigDecimal donGia, 
                         int nhomThucPhamId, String tenNhomThucPham) {
         this.id = id;
         this.tenNguyenLieu = tenNguyenLieu;
-        this.donViTinh = donViTinh;
+        this.khoiLuong = khoiLuong;
         this.donGia = donGia;
         this.nhomThucPhamId = nhomThucPhamId;
         this.tenNhomThucPham = tenNhomThucPham;
@@ -57,12 +57,12 @@ public class NguyenLieuDTO {
         this.tenNguyenLieu = tenNguyenLieu;
     }
 
-    public String getDonViTinh() {
-        return donViTinh;
+    public Double getKhoiLuong() {
+        return khoiLuong;
     }
 
-    public void setDonViTinh(String donViTinh) {
-        this.donViTinh = donViTinh;
+    public void setKhoiLuong(Double khoiLuong) {
+        this.khoiLuong = khoiLuong;
     }
 
     public BigDecimal getDonGia() {

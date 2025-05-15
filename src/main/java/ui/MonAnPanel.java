@@ -60,6 +60,9 @@ public class MonAnPanel extends JPanel {
         };
         
         table = new JTable(model);
+        table.getColumnModel().getColumn(0).setMinWidth(40);
+        table.getColumnModel().getColumn(0).setMaxWidth(60);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 

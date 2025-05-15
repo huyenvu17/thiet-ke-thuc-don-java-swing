@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 public record NguyenLieuEntity(
         int id,
         String tenNguyenLieu,
-        String donViTinh,
+        Double khoiLuong,
         BigDecimal donGia,
         int nhomThucPhamId
         ) {

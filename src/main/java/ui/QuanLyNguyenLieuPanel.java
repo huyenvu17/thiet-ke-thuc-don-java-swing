@@ -56,7 +56,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
         // Create table model with column names
-        model = new DefaultTableModel(new String[]{"ID", "Tên nguyên liệu", "Đơn vị", "Đơn giá", "Nhóm thực phẩm"}, 0) {
+        model = new DefaultTableModel(new String[]{"ID", "Tên nguyên liệu", "Khối lượng(kg)", "Đơn giá", "Nhóm thực phẩm"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -64,6 +64,9 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         };
         
         table = new JTable(model);
+        table.getColumnModel().getColumn(0).setMinWidth(40);
+        table.getColumnModel().getColumn(0).setMaxWidth(60);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -75,7 +78,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         tenField = new JTextField();
         formPanel.add(tenField);
         
-        formPanel.add(new JLabel("Đơn vị:"));
+        formPanel.add(new JLabel("Khối lượng(kg):"));
         donViField = new JTextField();
         formPanel.add(donViField);
         
@@ -199,7 +202,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
                 Object[] row = {
                     nl.getId(),
                     nl.getTenNguyenLieu(),
-                    nl.getDonViTinh(),
+                    nl.getKhoiLuong(),
                     nl.getDonGia(),
                     nl.getTenNhomThucPham()
                 };
@@ -263,13 +266,14 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
         
         try {
+            Double khoiLuong = Double.parseDouble(donVi);
             BigDecimal donGia = new BigDecimal(donGiaStr);
             
             // Tạo DTO cho nguyên liệu mới (id=0 sẽ được bỏ qua khi thêm mới)
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(0);
             nlDto.setTenNguyenLieu(ten);
-            nlDto.setDonViTinh(donVi);
+            nlDto.setKhoiLuong(khoiLuong);
             nlDto.setDonGia(donGia);
             nlDto.setNhomThucPhamId(nhomThucPhamId);
             
@@ -287,7 +291,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
             }
             
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Đơn giá phải là số", 
+            JOptionPane.showMessageDialog(this, "Khối lượng và đơn giá phải là số", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -326,13 +330,14 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
         
         try {
+            Double khoiLuong = Double.parseDouble(donVi);
             BigDecimal donGia = new BigDecimal(donGiaStr);
             
             // Tạo DTO cho nguyên liệu cần cập nhật
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(id);
             nlDto.setTenNguyenLieu(ten);
-            nlDto.setDonViTinh(donVi);
+            nlDto.setKhoiLuong(khoiLuong);
             nlDto.setDonGia(donGia);
             nlDto.setNhomThucPhamId(nhomThucPhamId);
             
@@ -350,7 +355,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
             }
             
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Đơn giá phải là số", 
+            JOptionPane.showMessageDialog(this, "Khối lượng và đơn giá phải là số", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }

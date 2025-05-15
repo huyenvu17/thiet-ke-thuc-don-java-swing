@@ -57,6 +57,9 @@ public class DanhSachThucDonPanel extends JPanel {
         };
         
         thucDonTable = new JTable(thucDonModel);
+        thucDonTable.getColumnModel().getColumn(0).setMinWidth(40);
+        thucDonTable.getColumnModel().getColumn(0).setMaxWidth(60);
+        thucDonTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane thucDonScrollPane = new JScrollPane(thucDonTable);
         thucDonPanel.add(thucDonScrollPane, BorderLayout.CENTER);
         

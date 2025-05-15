@@ -105,7 +105,7 @@ public class NguyenLieuController implements INguyenLieuController{
         return new NguyenLieu(
                 dto.getId(),
                 dto.getTenNguyenLieu(),
-                dto.getDonViTinh(),
+                dto.getKhoiLuong(),
                 dto.getDonGia(),
                 dto.getNhomThucPhamId());
     }
@@ -128,7 +128,7 @@ public class NguyenLieuController implements INguyenLieuController{
         return new NguyenLieuDTO(
                 model.getId(),
                 model.getTenNguyenLieu(),
-                model.getDonViTinh(),
+                model.getKhoiLuong(),
                 model.getDonGia(),
                 model.getNhomThucPhamId(),
                 tenNhom);

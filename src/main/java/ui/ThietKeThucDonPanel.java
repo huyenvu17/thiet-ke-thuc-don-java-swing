@@ -79,7 +79,7 @@ public class ThietKeThucDonPanel extends JPanel {
         
         gbc.gridx = 1;
         gbc.weightx = 1.0;
-        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(7, 1, 30, 1);
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(5, 1, 30, 1);
         soNgaySpinner = new JSpinner(spinnerModel);
         inputPanel.add(soNgaySpinner, gbc);
         
@@ -88,15 +88,15 @@ public class ThietKeThucDonPanel extends JPanel {
         budgetPanel.setBorder(BorderFactory.createTitledBorder("Ngân sách tối đa cho mỗi bữa ăn"));
         
         budgetPanel.add(new JLabel("Bữa sáng:"));
-        budgetSangField = new JTextField("50000");
+        budgetSangField = new JTextField("30000");
         budgetPanel.add(budgetSangField);
         
         budgetPanel.add(new JLabel("Bữa trưa:"));
-        budgetTruaField = new JTextField("100000");
+        budgetTruaField = new JTextField("30000");
         budgetPanel.add(budgetTruaField);
         
-        budgetPanel.add(new JLabel("Bữa tối:"));
-        budgetXeField = new JTextField("80000");
+        budgetPanel.add(new JLabel("Bữa xế:"));
+        budgetXeField = new JTextField("20000");
         budgetPanel.add(budgetXeField);
         
         gbc.gridx = 0;
@@ -200,7 +200,7 @@ public class ThietKeThucDonPanel extends JPanel {
                 
                 for (NguyenLieuEntity nguyenLieu : nguyenLieuThuocNhom) {
                     String checkboxText = nguyenLieu.tenNguyenLieu() + " (" + 
-                                         nguyenLieu.donViTinh() + " - " + 
+                                         nguyenLieu.khoiLuong() + " kg - " + 
                                          nguyenLieu.donGia() + " VND)";
                     
                     JCheckBox checkBox = new JCheckBox(checkboxText);

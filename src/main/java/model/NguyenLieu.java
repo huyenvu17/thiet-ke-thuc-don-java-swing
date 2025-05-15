@@ -16,27 +16,27 @@ public class NguyenLieu {
 
     private int id;
     private String tenNguyenLieu;
-    private String donViTinh;
+    private Double khoiLuong;
     private BigDecimal donGia;
     private int nhomThucPhamId;
 
     public NguyenLieu(
             int id,
             String tenNguyenLieu,
-            String donViTinh,
+            Double khoiLuong,
             BigDecimal donGia) throws BHException {
-        this(id, tenNguyenLieu, donViTinh, donGia, 0);
+        this(id, tenNguyenLieu, khoiLuong, donGia, 0);
     }
     
     public NguyenLieu(
             int id,
             String tenNguyenLieu,
-            String donViTinh,
+            Double khoiLuong,
             BigDecimal donGia,
             int nhomThucPhamId) throws BHException {
         setId(id);
         setTenNguyenLieu(tenNguyenLieu);
-        setDonViTinh(donViTinh);
+        setKhoiLuong(khoiLuong);
         setDonGia(donGia);
         setNhomThucPhamId(nhomThucPhamId);
     }
@@ -70,17 +70,17 @@ public class NguyenLieu {
     }
 
     /**
-     * @return the donViTinh
+     * @return the khoiLuong
      */
-    public String getDonViTinh() {
-        return donViTinh;
+    public Double getKhoiLuong() {
+        return khoiLuong;
     }
 
     /**
-     * @param donViTinh the donViTinh to set
+     * @param khoiLuong the khoiLuong to set
      */
-    public final void setDonViTinh(String donViTinh) {
-        this.donViTinh = donViTinh;
+    public final void setKhoiLuong(Double khoiLuong) {
+        this.khoiLuong = khoiLuong;
     }
 
     /**

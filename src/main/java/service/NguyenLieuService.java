@@ -74,7 +74,7 @@ public class NguyenLieuService {
         return new NguyenLieu(
                 entity.id(),
                 entity.tenNguyenLieu(),
-                entity.donViTinh(),
+                entity.khoiLuong(),
                 entity.donGia(),
                 entity.nhomThucPhamId());
     }
@@ -83,7 +83,7 @@ public class NguyenLieuService {
         return new NguyenLieuEntity(
                 model.getId(),
                 model.getTenNguyenLieu(),
-                model.getDonViTinh(),
+                model.getKhoiLuong(),
                 model.getDonGia(),
                 model.getNhomThucPhamId());
     }

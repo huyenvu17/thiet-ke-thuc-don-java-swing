@@ -22,8 +22,8 @@ CREATE TABLE nhomthucpham (
 CREATE TABLE nguyenlieu (
     id INT PRIMARY KEY AUTO_INCREMENT,
     ten_nguyen_lieu VARCHAR(100) NOT NULL,
-    don_vi_tinh VARCHAR(20) DEFAULT 'g',
-    don_gia DECIMAL(10, 2) NOT NULL,
+    khoi_luong DOUBLE(20, 2) NOT NULL,
+    don_gia INT NOT NULL,
     nhom_thuc_pham_id INT NOT NULL,
     FOREIGN KEY (nhom_thuc_pham_id) REFERENCES nhomthucpham(id)
 );
@@ -72,63 +72,63 @@ INSERT INTO nhomthucpham (ten_nhom, mo_ta) VALUES
 ('Vitamin và khoáng chất', 'Nhóm thực phẩm giàu vitamin');
 
 -- Thêm dữ liệu mẫu vào bảng nguyên liệu 
-INSERT INTO nguyenlieu (ten_nguyen_lieu, nhom_thuc_pham_id, don_vi_tinh, don_gia) VALUES
+INSERT INTO nguyenlieu (ten_nguyen_lieu, nhom_thuc_pham_id, khoi_luong, don_gia) VALUES
 -- Nhóm chất bột đường
-('Gạo', 1, 'g', 150.00),
-('Đậu xanh', 1, 'g', 200.00),
-('Gạo Jasmine', 1, 'g', 309.27),
-('Gạo nếp cái hoa vàng', 1, 'g', 366.15),
-('Gạo ST24', 1, 'g', 98.36),
-('Bí đỏ giống Nhật', 1, 'g', 83.41),
-('Đậu đen', 1, 'g', 195.16),
-('Khoai lang tím', 1, 'g', 529.00),
-('Bắp non', 1, 'g', 491.53),
-('Ngô nếp', 1, 'g', 989.72),
+('Gạo', 1, 1.00, 15000.00),
+('Đậu xanh', 1, 1.00, 20000.00),
+('Gạo Jasmine', 1, 1.00, 30927.00),
+('Gạo nếp cái hoa vàng', 1, 1.00, 36615.00),
+('Gạo ST24', 1, 1.00, 9836.00),
+('Bí đỏ giống Nhật', 1, 1.00, 8341.00),
+('Đậu đen', 1, 1.00, 19516.00),
+('Khoai lang tím', 1, 1.00, 5290.00),
+('Bắp non', 1, 1.00, 4915.00),
+('Ngô nếp', 1, 1.00, 9897.00),
 
 -- Nhóm chất đạm
-('Thịt gà', 2, 'g', 350.00),
-('Cá hồi', 2, 'g', 500.00),
-('Thịt bò Úc', 2, 'g', 371.56),
-('Cá hồi Chile', 2, 'g', 494.60),
-('Thịt bò Mỹ', 2, 'g', 670.70),
-('Mực nang', 2, 'g', 812.86),
-('Thịt heo nạc', 2, 'g', 644.45),
-('Thịt gà ta', 2, 'g', 375.32),
-('Cá hồi Na Uy', 2, 'g', 56.89),
-('Tôm sú', 2, 'g', 648.77),
-('Mực ống', 2, 'g', 127.57),
-('Thịt heo ba chỉ', 2, 'g', 721.54),
+('Thịt gà', 2, 1.00, 35000.00),
+('Cá hồi', 2, 1.00, 50000.00),
+('Thịt bò Úc', 2, 1.00, 371560.00),
+('Cá hồi Chile', 2, 1.00, 494600.00),
+('Thịt bò Mỹ', 2, 1.00, 670700.00),
+('Mực nang', 2, 1.00, 812860.00),
+('Thịt heo nạc', 2, 1.00, 64445.00),
+('Thịt gà ta', 2, 1.00, 37532.00),
+('Cá hồi Na Uy', 2, 1.00, 56890.00),
+('Tôm sú', 2, 1.00, 648770.00),
+('Mực ống', 2, 1.00, 127570.00),
+('Thịt heo ba chỉ', 2, 1.00, 721540.00),
 
 -- Nhóm chất béo
-('Dầu Tường An', 3, 'g', 713.31),
+('Dầu Tường An', 3, 1.00, 71331.00),
 
 -- Nhóm vitamin và khoáng chất
-('Cà rốt', 4, 'g', 100.00),
-('Rau dền', 4, 'g', 879.09),
-('Táo Envy', 4, 'g', 676.86),
-('Sữa tươi thanh trùng', 4, 'g', 86.16),
-('Nấm rơm', 4, 'g', 369.53),
-('Chuối cau', 4, 'g', 744.14),
-('Cà chua beef', 4, 'g', 74.75),
-('Khoai tây Đà Lạt', 4, 'g', 804.21),
-('Đậu phụ trắng', 4, 'g', 771.29),
-('Đậu nành', 4, 'g', 191.73),
-('Ngô Mỹ', 4, 'g', 166.67),
-('Sữa chua', 4, 'g', 413.80),
-('Bắp cải tím', 4, 'g', 468.74),
-('Nấm hương', 4, 'g', 396.35),
-('Nấm đùi gà', 4, 'g', 177.53),
-('Bí đỏ hồ lô', 4, 'g', 767.61),
-('Nấm kim châm', 4, 'g', 130.92),
-('Cam sành', 4, 'g', 322.08),
-('Cam Cara ruột đỏ', 4, 'g', 304.84),
-('Sữa tươi tiệt trùng', 4, 'g', 347.15),
-('Táo Fuji', 4, 'g', 223.52),
-('Tôm thẻ', 4, 'g', 554.47),
-('Rau muống', 4, 'g', 130.60),
-('Chuối già Nam Mỹ', 4, 'g', 509.33),
-('Bắp cải trắng', 4, 'g', 942.27),
-('Phô mai', 4, 'g', 713.31);
+('Cà rốt', 4, 1.00, 10000.00),
+('Rau dền', 4, 1.00, 8790.00),
+('Táo Envy', 4, 1.00, 67686.00),
+('Sữa tươi thanh trùng', 4, 1.00, 8616.00),
+('Nấm rơm', 4, 1.00, 36953.00),
+('Chuối cau', 4, 1.00, 74414.00),
+('Cà chua beef', 4, 1.00, 7475.00),
+('Khoai tây Đà Lạt', 4, 1.00, 80421.00),
+('Đậu phụ trắng', 4, 1.00, 77129.00),
+('Đậu nành', 4, 1.00, 19173.00),
+('Ngô Mỹ', 4, 1.00, 16667.00),
+('Sữa chua', 4, 1.00, 41380.00),
+('Bắp cải tím', 4, 1.00, 46874.00),
+('Nấm hương', 4, 1.00, 39635.00),
+('Nấm đùi gà', 4, 1.00, 17753.00),
+('Bí đỏ hồ lô', 4, 1.00, 76761.00),
+('Nấm kim châm', 4, 1.00, 13092.00),
+('Cam sành', 4, 1.00, 32208.00),
+('Cam Cara ruột đỏ', 4, 1.00, 30484.00),
+('Sữa tươi tiệt trùng', 4, 1.00, 34715.00),
+('Táo Fuji', 4, 1.00, 22352.00),
+('Tôm thẻ', 4, 1.00, 55447.00),
+('Rau muống', 4, 1.00, 13060.00),
+('Chuối già Nam Mỹ', 4, 1.00, 50933.00),
+('Bắp cải trắng', 4, 1.00, 94227.00),
+('Phô mai', 4, 1.00, 71331.00);
 
 -- Thêm dữ liệu mẫu cho bảng món ăn
 INSERT INTO monan (ten_mon, loai_mon, cach_che_bien) VALUES
@@ -248,7 +248,7 @@ SELECT id, ten_nhom, mo_ta FROM nhomthucpham;
 
 -- View hiển thị nguyên liệu kèm theo tên nhóm thực phẩm
 CREATE VIEW vw_nguyenlieu_theotennhom AS
-SELECT n.id, n.ten_nguyen_lieu, n.don_vi_tinh, n.don_gia, n.nhom_thuc_pham_id, nt.ten_nhom
+SELECT n.id, n.ten_nguyen_lieu, n.khoi_luong, n.don_gia, n.nhom_thuc_pham_id, nt.ten_nhom
 FROM nguyenlieu n
 JOIN nhomthucpham nt ON n.nhom_thuc_pham_id = nt.id;
 

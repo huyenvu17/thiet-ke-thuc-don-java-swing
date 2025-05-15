@@ -39,7 +39,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
     public List<CongThucMonAnEntity> getAllCongThucMonAn() {
         List<CongThucMonAnEntity> congThucList = new ArrayList<>();
         String query = "SELECT ct.id, ct.mon_an_id, ct.nguyen_lieu_id, ct.khoi_luong, " +
-                       "m.ten_mon, nl.ten_nguyen_lieu, nl.don_vi_tinh " +
+                       "m.ten_mon, nl.ten_nguyen_lieu " +
                        "FROM congthucmonan ct " +
                        "JOIN monan m ON ct.mon_an_id = m.id " +
                        "JOIN nguyenlieu nl ON ct.nguyen_lieu_id = nl.id";
@@ -56,7 +56,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                         rs.getBigDecimal("khoi_luong"),
                         rs.getString("ten_mon"),
                         rs.getString("ten_nguyen_lieu"),
-                        rs.getString("don_vi_tinh")
+                        "kg"  // Đơn vị cố định là kg
                 );
                 congThucList.add(congThuc);
             }
@@ -77,7 +77,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
     public List<CongThucMonAnEntity> getCongThucByMonAnId(int monAnId) {
         List<CongThucMonAnEntity> congThucList = new ArrayList<>();
         String query = "SELECT ct.id, ct.mon_an_id, ct.nguyen_lieu_id, ct.khoi_luong, " +
-                       "m.ten_mon, nl.ten_nguyen_lieu, nl.don_vi_tinh " +
+                       "m.ten_mon, nl.ten_nguyen_lieu " +
                        "FROM congthucmonan ct " +
                        "JOIN monan m ON ct.mon_an_id = m.id " +
                        "JOIN nguyenlieu nl ON ct.nguyen_lieu_id = nl.id " +
@@ -97,7 +97,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                             rs.getBigDecimal("khoi_luong"),
                             rs.getString("ten_mon"),
                             rs.getString("ten_nguyen_lieu"),
-                            rs.getString("don_vi_tinh")
+                            "kg"  // Đơn vị cố định là kg
                     );
                     congThucList.add(congThuc);
                 }
@@ -231,7 +231,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
     @Override
     public CongThucMonAnEntity getCongThucMonAnById(int id) {
         String query = "SELECT ct.id, ct.mon_an_id, ct.nguyen_lieu_id, ct.khoi_luong, " +
-                       "m.ten_mon, nl.ten_nguyen_lieu, nl.don_vi_tinh " +
+                       "m.ten_mon, nl.ten_nguyen_lieu " +
                        "FROM congthucmonan ct " +
                        "JOIN monan m ON ct.mon_an_id = m.id " +
                        "JOIN nguyenlieu nl ON ct.nguyen_lieu_id = nl.id " +
@@ -252,7 +252,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                         rs.getBigDecimal("khoi_luong"),
                         rs.getString("ten_mon"),
                         rs.getString("ten_nguyen_lieu"),
-                        rs.getString("don_vi_tinh")
+                        "kg"  // Đơn vị cố định là kg
                     );
                 }
             }
