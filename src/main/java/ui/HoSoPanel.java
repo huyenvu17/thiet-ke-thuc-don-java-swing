@@ -15,13 +15,14 @@ import java.util.List;
  */
 public class HoSoPanel extends JPanel {
     
-    private JTextField tfHoTen, tfEmail, tfSoDienThoai, tfUsername, tfRole;
+    private JTextField tfHoTen, tfEmail, tfSoDienThoai, tfUsername;
     private JPasswordField tfPassword, tfConfirmPassword, tfCurrentPassword;
     private JButton btnCapNhat, btnDoiMatKhau;
     private JTable userTable;
     private DefaultTableModel userModel;
     private UserDao userDao = new UserDao();
     private UserEntity currentUserEntity;
+    private JComboBox<String> cbRole;
     
     public HoSoPanel(UserEntity userEntity) {
         this.currentUserEntity = userEntity;
@@ -44,22 +45,136 @@ public class HoSoPanel extends JPanel {
         }
 
         if (currentUserEntity.getRole().equals("admin")) {
-            // Admin: hiển thị bảng user
+            JPanel mainPanel = new JPanel(new GridLayout(1, 2, 15, 0));
+            mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+            
+            JPanel tablePanel = new JPanel(new BorderLayout(0, 10));
+            tablePanel.setBorder(BorderFactory.createTitledBorder("Danh sách người dùng"));
+            
             userModel = new DefaultTableModel(new String[]{"ID", "Username", "Họ tên", "Email", "SĐT", "Role"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return false; }
             };
             userTable = new JTable(userModel);
             JScrollPane scrollPane = new JScrollPane(userTable);
             loadUserTable();
-            add(scrollPane, BorderLayout.CENTER);
-            // Thêm nút thao tác (thêm/sửa/xóa)
-            JPanel buttonPanel = new JPanel();
-            JButton btnThem = new JButton("Thêm user");
-            JButton btnSua = new JButton("Sửa user");
-            JButton btnXoa = new JButton("Xóa user");
-            buttonPanel.add(btnThem); buttonPanel.add(btnSua); buttonPanel.add(btnXoa);
-            add(buttonPanel, BorderLayout.SOUTH);
-            // TODO: Thêm sự kiện cho các nút này
+            tablePanel.add(scrollPane, BorderLayout.CENTER);
+            
+            JPanel formPanel = new JPanel(new BorderLayout(0, 10));
+            formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin người dùng"));
+            JPanel inputPanel = new JPanel();
+            inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+            inputPanel.setBorder(new EmptyBorder(15, 10, 15, 10));
+            
+            // Khởi tạo các trường nhập liệu
+            tfUsername = new JTextField();
+            tfUsername.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            tfPassword = new JPasswordField();
+            tfPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            tfHoTen = new JTextField();
+            tfHoTen.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            tfEmail = new JTextField();
+            tfEmail.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            tfSoDienThoai = new JTextField();
+            tfSoDienThoai.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            cbRole = new JComboBox<>(new String[]{"user", "admin"});
+            cbRole.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
+            cbRole.setAlignmentX(Component.LEFT_ALIGNMENT);
+            
+            JLabel lblUsername = new JLabel("Username:");
+            lblUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JLabel lblPassword = new JLabel("Mật khẩu:");
+            lblPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JLabel lblHoTen = new JLabel("Họ tên:");
+            lblHoTen.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JLabel lblEmail = new JLabel("Email:");
+            lblEmail.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JLabel lblSoDienThoai = new JLabel("Số điện thoại:");
+            lblSoDienThoai.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JLabel lblRole = new JLabel("Vai trò:");
+            lblRole.setAlignmentX(Component.LEFT_ALIGNMENT);
+            
+            // Đặt căn lề trái cho các text field
+            tfUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
+            tfPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
+            tfHoTen.setAlignmentX(Component.LEFT_ALIGNMENT);
+            tfEmail.setAlignmentX(Component.LEFT_ALIGNMENT);
+            tfSoDienThoai.setAlignmentX(Component.LEFT_ALIGNMENT);
+            
+            // Thêm các thành phần vào inputPanel
+            inputPanel.add(lblUsername);
+            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(tfUsername);
+            inputPanel.add(Box.createVerticalStrut(10));
+            
+            inputPanel.add(lblPassword);
+            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(tfPassword);
+            inputPanel.add(Box.createVerticalStrut(10));
+            
+            inputPanel.add(lblHoTen);
+            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(tfHoTen);
+            inputPanel.add(Box.createVerticalStrut(10));
+            
+            inputPanel.add(lblEmail);
+            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(tfEmail);
+            inputPanel.add(Box.createVerticalStrut(10));
+            
+            inputPanel.add(lblSoDienThoai);
+            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(tfSoDienThoai);
+            
+            inputPanel.add(lblRole);
+            inputPanel.add(Box.createVerticalStrut(10));
+            inputPanel.add(cbRole);
+            
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            JButton btnThem = new JButton("Thêm");
+            JButton btnSua = new JButton("Sửa");
+            JButton btnXoa = new JButton("Xóa");
+            JButton btnLamMoi = new JButton("Làm mới");
+            
+            btnThem.addActionListener(e -> handleAddUser());
+            btnSua.addActionListener(e -> handleEditUser());
+            btnXoa.addActionListener(e -> handleDeleteUser());
+            btnLamMoi.addActionListener(e -> {
+                clearForm();
+                loadUserTable();
+            });
+            
+            userTable.getSelectionModel().addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    int selectedRow = userTable.getSelectedRow();
+                    if (selectedRow != -1) {
+                        int userId = (int) userModel.getValueAt(selectedRow, 0);
+                        UserEntity selectedUser = userDao.findById(userId);
+                        if (selectedUser != null) {
+                            tfUsername.setText(selectedUser.getUsername());
+                            tfPassword.setForeground(Color.GRAY);
+                            tfHoTen.setText(selectedUser.getFullName());
+                            tfEmail.setText(selectedUser.getEmail());
+                            tfSoDienThoai.setText(selectedUser.getPhone());
+                            cbRole.setSelectedItem(selectedUser.getRole());
+                        }
+                    }
+                }
+            });
+            
+            buttonPanel.add(btnThem);
+            buttonPanel.add(btnSua);
+            buttonPanel.add(btnXoa);
+            buttonPanel.add(btnLamMoi);
+            
+            formPanel.add(inputPanel, BorderLayout.CENTER);
+            formPanel.add(buttonPanel, BorderLayout.SOUTH);
+            
+            // Thêm cả hai panel vào main panel
+            mainPanel.add(tablePanel);
+            mainPanel.add(formPanel);
+            
+            // Thêm main panel vào center của HoSoPanel
+            add(mainPanel, BorderLayout.CENTER);
         } else {
             // User thường: tách làm 2 phần - thông tin cá nhân và đổi mật khẩu
             JPanel mainPanel = new JPanel(new GridLayout(1, 2, 15, 0));
@@ -312,24 +427,150 @@ public class HoSoPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    /**
-     * Kiểm tra định dạng email
-     * @param email Chuỗi email cần kiểm tra
-     * @return true nếu email đúng định dạng, false nếu không
-     */
+
     private boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         return email.matches(emailRegex);
     }
-    
-    /**
-     * Kiểm tra định dạng số điện thoại
-     * @param phoneNumber Chuỗi số điện thoại cần kiểm tra
-     * @return true nếu chỉ chứa các chữ số, false nếu không
-     */
+
     private boolean isValidPhoneNumber(String phoneNumber) {
         String phoneRegex = "^[0-9]+$";
         return phoneNumber.matches(phoneRegex);
+    }
+
+    private void clearForm() {
+        tfUsername.setText("");
+        tfPassword.setText("");
+        tfPassword.setEchoChar('*');
+        tfPassword.setForeground(Color.BLACK);
+        tfHoTen.setText("");
+        tfEmail.setText("");
+        tfSoDienThoai.setText("");
+        cbRole.setSelectedIndex(0);
+        userTable.clearSelection();
+    }
+
+    private void handleAddUser() {
+        String username = tfUsername.getText().trim();
+        String password = new String(tfPassword.getPassword());
+        String fullName = tfHoTen.getText().trim();
+        String email = tfEmail.getText().trim();
+        String phone = tfSoDienThoai.getText().trim();
+        String role = (String) cbRole.getSelectedItem();
+        
+        if (username.isEmpty() || password.isEmpty() || fullName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bắt buộc!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (!email.isEmpty() && !isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this, "Email không đúng định dạng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (!phone.isEmpty() && !isValidPhoneNumber(phone)) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại chỉ được chứa các chữ số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (!role.equals("user") && !role.equals("admin")) {
+            JOptionPane.showMessageDialog(this, "Vai trò phải là 'user' hoặc 'admin'!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        UserEntity newUser = new UserEntity();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+        newUser.setFullName(fullName);
+        newUser.setEmail(email);
+        newUser.setPhone(phone);
+        newUser.setRole(role);
+        
+        if (userDao.addUser(newUser)) {
+            JOptionPane.showMessageDialog(this, "Thêm người dùng thành công!");
+            clearForm();
+            loadUserTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Thêm người dùng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void handleEditUser() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        int userId = (int) userModel.getValueAt(selectedRow, 0);
+        UserEntity userToEdit = userDao.findById(userId);
+        if (userToEdit == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin người dùng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String fullName = tfHoTen.getText().trim();
+        String email = tfEmail.getText().trim();
+        String phone = tfSoDienThoai.getText().trim();
+        String role = (String) cbRole.getSelectedItem();
+        
+        if (fullName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Họ tên không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (!email.isEmpty() && !isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this, "Email không đúng định dạng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (!phone.isEmpty() && !isValidPhoneNumber(phone)) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại chỉ được chứa các chữ số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        userToEdit.setFullName(fullName);
+        userToEdit.setEmail(email);
+        userToEdit.setPhone(phone);
+        userToEdit.setRole(role);
+        
+        String newPassword = new String(tfPassword.getPassword());
+        if (!newPassword.isEmpty() && !newPassword.equals("(Để trống nếu không đổi mật khẩu)")) {
+            userToEdit.setPassword(newPassword);
+        }
+        
+        if (userDao.updateUser(userToEdit)) {
+            JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
+            clearForm();
+            loadUserTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Cập nhật thông tin thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void handleDeleteUser() {
+        int selectedRow = userTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        int userId = (int) userModel.getValueAt(selectedRow, 0);
+        String username = (String) userModel.getValueAt(selectedRow, 1);
+        
+        int confirm = JOptionPane.showConfirmDialog(this,
+            "Bạn có chắc chắn muốn xóa người dùng " + username + "?",
+            "Xác nhận xóa",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            if (userDao.deleteUser(userId)) {
+                JOptionPane.showMessageDialog(this, "Xóa người dùng thành công!");
+                loadUserTable(); // Refresh table
+            } else {
+                JOptionPane.showMessageDialog(this, "Xóa người dùng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 } 
