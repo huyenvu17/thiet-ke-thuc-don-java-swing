@@ -2,6 +2,7 @@ package ui;
 
 import entity.ChiTietThucDonEntity;
 import entity.ThucDonEntity;
+import entity.UserEntity;
 import service.ThucDonService;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Panel for displaying the list of menus
+ * Panel Danh Sách Thực Đơn
  */
 public class DanhSachThucDonPanel extends JPanel {
     
@@ -24,8 +25,10 @@ public class DanhSachThucDonPanel extends JPanel {
     private JButton deleteButton;
     private JButton printButton;
     private JButton refreshButton;
+    private UserEntity currentUserEntity;
     
-    public DanhSachThucDonPanel() {
+    public DanhSachThucDonPanel(UserEntity userEntity) {
+        this.currentUserEntity = userEntity;
         thucDonService = new ThucDonService();
         initComponents();
         loadThucDonList();
@@ -34,17 +37,14 @@ public class DanhSachThucDonPanel extends JPanel {
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(5, 5, 5, 5));
-        
-        // Title
+
         JLabel titleLabel = new JLabel("DANH SÁCH THỰC ĐƠN", JLabel.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         add(titleLabel, BorderLayout.NORTH);
-        
-        // Main content split pane
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setResizeWeight(0.5); // Divide space equally
-        
-        // Top panel: Thuc Don list
+        splitPane.setResizeWeight(0.5);
+
         JPanel thucDonPanel = new JPanel(new BorderLayout());
         thucDonPanel.setBorder(BorderFactory.createTitledBorder("Danh sách thực đơn"));
         
@@ -62,8 +62,7 @@ public class DanhSachThucDonPanel extends JPanel {
         thucDonTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane thucDonScrollPane = new JScrollPane(thucDonTable);
         thucDonPanel.add(thucDonScrollPane, BorderLayout.CENTER);
-        
-        // Add buttons for the ThucDon panel
+
         JPanel thucDonButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         deleteButton = new JButton("Xóa");
         printButton = new JButton("In thực đơn");
@@ -72,12 +71,17 @@ public class DanhSachThucDonPanel extends JPanel {
         deleteButton.setEnabled(false);
         printButton.setEnabled(false);
         
-        thucDonButtonPanel.add(refreshButton);
-        thucDonButtonPanel.add(deleteButton);
-        thucDonButtonPanel.add(printButton);
+        if(currentUserEntity != null && !currentUserEntity.getRole().equals("admin")) {
+            thucDonButtonPanel.add(refreshButton);
+            thucDonButtonPanel.add(printButton);
+        }
+        else {
+            thucDonButtonPanel.add(refreshButton);
+            thucDonButtonPanel.add(deleteButton);
+            thucDonButtonPanel.add(printButton);
+        }
         thucDonPanel.add(thucDonButtonPanel, BorderLayout.SOUTH);
-        
-        // Bottom panel: Chi Tiet Thuc Don
+
         JPanel chiTietPanel = new JPanel(new BorderLayout());
         chiTietPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết thực đơn"));
         

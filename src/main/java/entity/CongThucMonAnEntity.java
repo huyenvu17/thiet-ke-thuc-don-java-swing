@@ -3,8 +3,7 @@ package entity;
 import java.math.BigDecimal;
 
 /**
- * Entity representing a recipe ingredient (công thức món ăn) in the database.
- * Implemented as a record for immutability and automatic implementation of common methods.
+ * Entity class: CongThucMonAnEntity
  */
 public record CongThucMonAnEntity(
         int id,

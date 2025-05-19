@@ -10,7 +10,7 @@ DROP TABLE IF EXISTS congthucmonan;
 DROP TABLE IF EXISTS monan;
 DROP TABLE IF EXISTS nguyenlieu;
 DROP TABLE IF EXISTS nhomthucpham;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS userEntity;
 
 -- Bảng nhóm thực phẩm
 CREATE TABLE nhomthucpham (
@@ -65,15 +65,15 @@ CREATE TABLE chitietthucdon (
     FOREIGN KEY (mon_an_id) REFERENCES monan(id)
 );
 
--- Bảng user cho chức năng đăng nhập/đăng ký và quản lý hồ sơ
-CREATE TABLE IF NOT EXISTS user (
+-- Bảng userEntity cho chức năng đăng nhập/đăng ký và quản lý hồ sơ
+CREATE TABLE IF NOT EXISTS userEntity (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
     email VARCHAR(100),
     phone VARCHAR(20),
-    role ENUM('admin', 'user') NOT NULL DEFAULT 'user'
+    role ENUM('admin', 'userEntity') NOT NULL DEFAULT 'userEntity'
 );
 
 -- Thêm dữ liệu vào nhóm thực phẩm
@@ -273,6 +273,6 @@ LEFT JOIN nguyenlieu n ON nt.id = n.nhom_thuc_pham_id
 GROUP BY nt.id, nt.ten_nhom;
 
 -- Tạo tài khoản admin mặc định
-INSERT INTO user (username, password, full_name, email, phone, role)
+INSERT INTO userEntity (username, password, full_name, email, phone, role)
 VALUES ('admin', 'admin', 'Quản trị viên', 'admin@example.com', '0123456789', 'admin')
 ON DUPLICATE KEY UPDATE username=username;

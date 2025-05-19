@@ -1,6 +1,6 @@
 package entity;
 
-public class User {
+public class UserEntity {
     private int id;
     private String username;
     private String password;
@@ -9,9 +9,9 @@ public class User {
     private String phone;
     private String role; // "admin" hoặc "user"
 
-    public User() {}
+    public UserEntity() {}
 
-    public User(int id, String username, String password, String fullName, String email, String phone, String role) {
+    public UserEntity(int id, String username, String password, String fullName, String email, String phone, String role) {
         this.id = id;
         this.username = username;
         this.password = password;

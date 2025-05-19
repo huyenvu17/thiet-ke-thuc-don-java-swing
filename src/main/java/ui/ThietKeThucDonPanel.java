@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Panel for menu design functionality
+ * Panel Thiết Kế Thực Đơn
  */
 public class ThietKeThucDonPanel extends JPanel {
     
@@ -24,25 +24,29 @@ public class ThietKeThucDonPanel extends JPanel {
     private final MonAnDao monAnDao;
     private final NguyenLieuDao nguyenLieuDao;
     private final NhomThucPhamDao nhomThucPhamDao;
-    
+    private UserEntity currentUserEntity;
     private JTextField tenThucDonField;
     private JSpinner soNgaySpinner;
     private JTextField budgetSangField;
     private JTextField budgetTruaField;
     private JTextField budgetXeField;
     private JTextArea resultArea;
-    
-    // Panel chứa các danh sách nguyên liệu theo nhóm
     private JPanel nhomThucPhamPanel;
-    // Map lưu các checkbox theo nguyên liệu ID
     private Map<Integer, JCheckBox> nguyenLieuCheckboxes;
+    private JPanel inputPanel;
+    private JButton generateButton;
     
     public ThietKeThucDonPanel() {
-        thucDonService = new ThucDonService();
-        monAnDao = MonAnDao.getInstance();
-        nguyenLieuDao = NguyenLieuDao.getInstance();
-        nhomThucPhamDao = NhomThucPhamDao.getInstance();
-        nguyenLieuCheckboxes = new HashMap<>();
+        this(null);
+    }
+    
+    public ThietKeThucDonPanel(UserEntity userEntity) {
+        this.thucDonService = new ThucDonService();
+        this.monAnDao = MonAnDao.getInstance();
+        this.nguyenLieuDao = NguyenLieuDao.getInstance();
+        this.nhomThucPhamDao = NhomThucPhamDao.getInstance();
+        this.nguyenLieuCheckboxes = new HashMap<>();
+        this.currentUserEntity = userEntity;
         initComponents();
     }
     
@@ -54,14 +58,12 @@ public class ThietKeThucDonPanel extends JPanel {
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         add(titleLabel, BorderLayout.NORTH);
         
-        // Create the input panel
-        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
         
-        // Thuc don name input
         gbc.gridx = 0;
         gbc.gridy = 0;
         inputPanel.add(new JLabel("Tên thực đơn:"), gbc);
@@ -71,7 +73,6 @@ public class ThietKeThucDonPanel extends JPanel {
         tenThucDonField = new JTextField(20);
         inputPanel.add(tenThucDonField, gbc);
         
-        // Number of days input
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
@@ -83,7 +84,6 @@ public class ThietKeThucDonPanel extends JPanel {
         soNgaySpinner = new JSpinner(spinnerModel);
         inputPanel.add(soNgaySpinner, gbc);
         
-        // Budget inputs
         JPanel budgetPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         budgetPanel.setBorder(BorderFactory.createTitledBorder("Ngân sách tối đa cho mỗi bữa ăn"));
         
@@ -105,7 +105,6 @@ public class ThietKeThucDonPanel extends JPanel {
         gbc.weightx = 1.0;
         inputPanel.add(budgetPanel, gbc);
         
-        // Tạo panel chọn nguyên liệu theo nhóm thực phẩm
         nhomThucPhamPanel = createNguyenLieuSelectionPanel();
         JScrollPane scrollPaneNguyenLieu = new JScrollPane(nhomThucPhamPanel);
         scrollPaneNguyenLieu.setPreferredSize(new Dimension(600, 250));
@@ -118,18 +117,16 @@ public class ThietKeThucDonPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         inputPanel.add(scrollPaneNguyenLieu, gbc);
         
-        // Generate button
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JButton generateButton = new JButton("Tạo Thực Đơn");
+        generateButton = new JButton("Tạo Thực Đơn");
         generateButton.addActionListener(e -> generateThucDon());
         inputPanel.add(generateButton, gbc);
         
-        // Check if we have the required number of dishes
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
@@ -144,7 +141,6 @@ public class ThietKeThucDonPanel extends JPanel {
             inputPanel.add(warningLabel, gbc);
         }
         
-        // Result area
         gbc.gridx = 0;
         gbc.gridy = 6;
         gbc.gridwidth = 2;
@@ -157,6 +153,23 @@ public class ThietKeThucDonPanel extends JPanel {
         inputPanel.add(scrollPane, gbc);
         
         add(inputPanel, BorderLayout.CENTER);
+        
+        if (currentUserEntity == null || !currentUserEntity.getRole().equals("admin")) {
+            JPanel restrictedPanel = new JPanel(new BorderLayout());
+            restrictedPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+            
+            JLabel restrictedLabel = new JLabel("<html><div style='text-align: center;'>" +
+                    "<h2>Chức năng này chỉ dành cho quản trị viên</h2>" +
+                    "<p>Bạn không có quyền truy cập chức năng Thiết kế thực đơn.</p>" +
+                    "<p>Vui lòng liên hệ quản trị viên để được hỗ trợ.</p>" +
+                    "</div></html>", JLabel.CENTER);
+            restrictedLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            restrictedPanel.add(restrictedLabel, BorderLayout.CENTER);
+            
+            // Ẩn panel nhập liệu và hiển thị thông báo giới hạn quyền
+            inputPanel.setVisible(false);
+            add(restrictedPanel, BorderLayout.CENTER);
+        }
     }
     
     /**

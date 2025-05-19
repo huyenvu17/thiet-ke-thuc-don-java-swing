@@ -2,6 +2,7 @@ package ui;
 
 import dao.MonAnDao;
 import entity.MonAnEntity;
+import entity.UserEntity;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel for managing dishes
+ * Panel Món Ăn
  */
 public class MonAnPanel extends JPanel {
     private JTable table;
@@ -30,10 +31,15 @@ public class MonAnPanel extends JPanel {
     private JPanel buttonsPanel;
     private JButton themButton, editButton, deleteButton, backButton;
     private MonAnDao monAnDao;
+    private UserEntity currentUserEntity;
     
     public MonAnPanel() {
+    }
+    
+    public MonAnPanel(UserEntity userEntity) {
         try {
             monAnDao = MonAnDao.getInstance();
+            this.currentUserEntity = userEntity;
             initComponents();
             loadMonAn();
         } catch (Exception ex) {
@@ -111,6 +117,12 @@ public class MonAnPanel extends JPanel {
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         add(inputPanel, BorderLayout.SOUTH);
+        
+        // Kiểm tra quyền người dùng
+        if(currentUserEntity != null && !currentUserEntity.getRole().equals("admin")) {
+            inputPanel.setVisible(false);
+            buttonsPanel.setVisible(false);
+        }
 
         // Add action listeners for buttons
         themButton.addActionListener(e -> {

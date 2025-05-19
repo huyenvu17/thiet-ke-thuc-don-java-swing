@@ -1,8 +1,7 @@
 package entity;
 
 /**
- * Entity representing a menu (thực đơn) in the database.
- * Implemented as a record for immutability and automatic implementation of common methods.
+ * Entity class: ThucDonEntity
  */
 public record ThucDonEntity(
     int id,

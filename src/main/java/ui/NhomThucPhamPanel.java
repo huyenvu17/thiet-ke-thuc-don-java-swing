@@ -2,6 +2,7 @@ package ui;
 
 import dao.NhomThucPhamDao;
 import entity.NhomThucPhamEntity;
+import entity.UserEntity;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -13,7 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
- * Panel quản lý nhóm thực phẩm
+ * Panel Nhóm Thực Phẩm
  */
 public class NhomThucPhamPanel extends JPanel {
     
@@ -27,12 +28,23 @@ public class NhomThucPhamPanel extends JPanel {
     private JButton xoaButton;
     private JButton lamMoiButton;
     private int selectedId = -1;
+    private UserEntity currentUserEntity;
+    private JPanel formPanel;
+    private JPanel buttonPanel;
     
     /**
      * Khởi tạo panel quản lý nhóm thực phẩm
      */
     public NhomThucPhamPanel() {
-        nhomThucPhamDao = NhomThucPhamDao.getInstance();
+        this(null);
+    }
+    
+    /**
+     * Khởi tạo panel quản lý nhóm thực phẩm với UserEntity
+     */
+    public NhomThucPhamPanel(UserEntity userEntity) {
+        this.nhomThucPhamDao = NhomThucPhamDao.getInstance();
+        this.currentUserEntity = userEntity;
         initComponents();
         loadTableData();
     }
@@ -52,8 +64,8 @@ public class NhomThucPhamPanel extends JPanel {
         add(titlePanel, BorderLayout.NORTH);
         
         // Panel chính chia làm 2 phần: bảng (trái) và form nhập liệu (phải)
-        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 0));
-        
+        JPanel mainPanel  = new JPanel(new GridLayout(1, 2, 10, 0));
+
         // Bảng danh sách đặt ở bên trái
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(BorderFactory.createTitledBorder("Danh sách nhóm thực phẩm"));
@@ -85,8 +97,10 @@ public class NhomThucPhamPanel extends JPanel {
                     moTaArea.setText((String) nhomThucPhamTable.getValueAt(selectedRow, 2));
                     
                     // Kích hoạt các nút sửa, xóa
-                    suaButton.setEnabled(true);
-                    xoaButton.setEnabled(true);
+                    if (currentUserEntity != null && currentUserEntity.getRole().equals("admin")) {
+                        suaButton.setEnabled(true);
+                        xoaButton.setEnabled(true);
+                    }
                 }
             }
         });
@@ -95,7 +109,7 @@ public class NhomThucPhamPanel extends JPanel {
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         
         // Form nhập liệu đặt ở bên phải
-        JPanel formPanel = new JPanel(new BorderLayout());
+        formPanel = new JPanel(new BorderLayout());
         formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin nhóm thực phẩm"));
         
         // Tạo panel cho các trường nhập liệu sử dụng GridBagLayout
@@ -131,7 +145,7 @@ public class NhomThucPhamPanel extends JPanel {
         inputPanel.add(moTaScrollPane, gbc);
         
         // Panel chứa các nút thao tác
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 4, 10, 0));
+        buttonPanel = new JPanel(new GridLayout(1, 4, 10, 0));
         buttonPanel.setBorder(new EmptyBorder(5, 10, 10, 10));
         
         themButton = new JButton("Thêm");
@@ -183,7 +197,9 @@ public class NhomThucPhamPanel extends JPanel {
         
         // Gắn table panel và form panel vào main panel
         mainPanel.add(tablePanel);
-        mainPanel.add(formPanel);
+        if (currentUserEntity != null && currentUserEntity.getRole().equals("admin")) {
+            mainPanel.add(formPanel);
+        }
         
         add(mainPanel, BorderLayout.CENTER);
     }

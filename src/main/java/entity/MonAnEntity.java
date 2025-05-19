@@ -1,8 +1,7 @@
 package entity;
 
 /**
- * Entity representing a dish (món ăn) in the database.
- * Implemented as a record for immutability and automatic implementation of common methods.
+ * Entity class: MonAnEntity
  */
 public record MonAnEntity(
     int id,

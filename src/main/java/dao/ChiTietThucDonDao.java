@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * Data Access Object for ChiTietThucDon entity
- * Implements the Singleton pattern
  */
 public class ChiTietThucDonDao implements IChiTietThucDonDao {
     

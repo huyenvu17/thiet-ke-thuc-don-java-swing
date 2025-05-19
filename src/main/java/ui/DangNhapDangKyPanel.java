@@ -1,17 +1,19 @@
 package ui;
 
 import dao.UserDao;
-import entity.User;
+import entity.UserEntity;
 import service.AuthService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class LoginRegisterPanel extends JPanel {
+/**
+ * Panel đăng nhập và đăng ký
+ */
+public class DangNhapDangKyPanel extends JPanel {
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JTextField loginUsernameField, registerUsernameField, registerFullNameField, registerEmailField, registerPhoneField;
@@ -20,31 +22,30 @@ public class LoginRegisterPanel extends JPanel {
     private UserDao userDao = new UserDao();
     private AuthenticationListener authListener;
     
-    // Interface for authentication callback
     public interface AuthenticationListener {
-        void onAuthenticationSuccess(User user);
+        void onAuthenticationSuccess(UserEntity userEntity);
     }
 
-    public LoginRegisterPanel(AuthenticationListener listener) {
+    public DangNhapDangKyPanel(AuthenticationListener listener) {
         this.authListener = listener;
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
-        cardPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Thêm padding cho cardPanel
+        cardPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         initLoginPanel();
         initRegisterPanel();
 
         setLayout(new BorderLayout());
-        JPanel centerPanel = new JPanel(new GridBagLayout()); // Panel để căn giữa
+        JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.add(cardPanel);
         add(centerPanel, BorderLayout.CENTER);
-        setBorder(new EmptyBorder(10, 10, 10, 10)); // Padding cho toàn bộ panel
+        setBorder(new EmptyBorder(10, 10, 10, 10));
     }
 
     private void initLoginPanel() {
         JPanel loginPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 5, 10); // Khoảng cách giữa các thành phần
+        gbc.insets = new Insets(10, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Tiêu đề "Đăng nhập"
@@ -66,7 +67,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 1;
         gbc.weightx = 1.0;
         loginUsernameField = new JTextField(30);
-        loginUsernameField.setPreferredSize(new Dimension(300, 30));
+        loginUsernameField.setPreferredSize(new Dimension(300, 25));
         loginPanel.add(loginUsernameField, gbc);
 
         // Password
@@ -79,7 +80,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 2;
         gbc.weightx = 1.0;
         loginPasswordField = new JPasswordField(30);
-        loginPasswordField.setPreferredSize(new Dimension(300, 30));
+        loginPasswordField.setPreferredSize(new Dimension(300, 25));
         loginPanel.add(loginPasswordField, gbc);
 
         // Nút "Đăng nhập"
@@ -88,7 +89,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 3;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
-        loginButton = new JButton("Đăng nhập");
+        loginButton = new JButton("Đăng Nhập");
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
         loginPanel.add(loginButton, gbc);
 
@@ -150,7 +151,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 1;
         gbc.weightx = 1.0;
         registerUsernameField = new JTextField(30);
-        registerUsernameField.setPreferredSize(new Dimension(300, 30));
+        registerUsernameField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerUsernameField, gbc);
 
         // Password
@@ -163,7 +164,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 2;
         gbc.weightx = 1.0;
         registerPasswordField = new JPasswordField(30);
-        registerPasswordField.setPreferredSize(new Dimension(300, 30));
+        registerPasswordField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerPasswordField, gbc);
 
         // Confirm Password
@@ -176,7 +177,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 3;
         gbc.weightx = 1.0;
         registerConfirmPasswordField = new JPasswordField(30);
-        registerConfirmPasswordField.setPreferredSize(new Dimension(300, 30));
+        registerConfirmPasswordField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerConfirmPasswordField, gbc);
 
         // Full Name
@@ -189,7 +190,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 4;
         gbc.weightx = 1.0;
         registerFullNameField = new JTextField(30);
-        registerFullNameField.setPreferredSize(new Dimension(300, 30));
+        registerFullNameField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerFullNameField, gbc);
 
         // Email
@@ -202,7 +203,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 5;
         gbc.weightx = 1.0;
         registerEmailField = new JTextField(30);
-        registerEmailField.setPreferredSize(new Dimension(300, 30));
+        registerEmailField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerEmailField, gbc);
 
         // Phone
@@ -215,7 +216,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 6;
         gbc.weightx = 1.0;
         registerPhoneField = new JTextField(30);
-        registerPhoneField.setPreferredSize(new Dimension(300, 30));
+        registerPhoneField.setPreferredSize(new Dimension(300, 25));
         registerPanel.add(registerPhoneField, gbc);
 
         // Nút "Đăng ký"
@@ -224,7 +225,7 @@ public class LoginRegisterPanel extends JPanel {
         gbc.gridy = 7;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
-        registerButton = new JButton("Đăng ký");
+        registerButton = new JButton("Đăng Ký");
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
         registerPanel.add(registerButton, gbc);
 
@@ -268,14 +269,14 @@ public class LoginRegisterPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        User user = userDao.login(username, password);
-        if (user != null) {
-            JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + user.getFullName());
+        UserEntity userEntity = userDao.login(username, password);
+        if (userEntity != null) {
+            JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + userEntity.getFullName());
             // Set the current user in the AuthService
-            AuthService.setCurrentUser(user);
+            AuthService.setCurrentUser(userEntity);
             // Notify the listener about successful authentication
             if (authListener != null) {
-                authListener.onAuthenticationSuccess(user);
+                authListener.onAuthenticationSuccess(userEntity);
             }
         } else {
             JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -301,12 +302,13 @@ public class LoginRegisterPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        User user = new User(0, username, password, fullName, email, phone, "user");
-        if (userDao.addUser(user)) {
+        UserEntity userEntity = new UserEntity(0, username, password, fullName, email, phone, "user");
+        if (userDao.addUser(userEntity)) {
             JOptionPane.showMessageDialog(this, "Đăng ký thành công! Bạn có thể đăng nhập.");
             cardLayout.show(cardPanel, "login");
         } else {
             JOptionPane.showMessageDialog(this, "Đăng ký thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 } 

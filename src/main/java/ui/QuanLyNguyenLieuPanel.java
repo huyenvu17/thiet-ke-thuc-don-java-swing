@@ -7,7 +7,7 @@ import dao.NhomThucPhamDao;
 import dto.NguyenLieuDTO;
 import entity.NguyenLieuEntity;
 import entity.NhomThucPhamEntity;
-
+import entity.UserEntity;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -24,7 +24,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel for managing ingredients
+ * Panel Quản Lý Nguyên Liệu
  */
 public class QuanLyNguyenLieuPanel extends JPanel {
     private JTable table;
@@ -34,11 +34,12 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     private JButton themButton, editButton, deleteButton, backButton;
     private JPanel buttonsPanel;
     private INguyenLieuController nguyenLieuController;
-    
-    public QuanLyNguyenLieuPanel() {
+    private UserEntity currentUserEntity;
+
+    public QuanLyNguyenLieuPanel(UserEntity userEntity) {
         try {
-            // Khởi tạo controller thay vì dao
-            nguyenLieuController = NguyenLieuController.getInstance();
+            this.nguyenLieuController = NguyenLieuController.getInstance();
+            this.currentUserEntity = userEntity;
             initComponents();
             loadNguyenLieu();
         } catch (Exception ex) {
@@ -53,9 +54,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         JLabel titleLabel = new JLabel("QUẢN LÝ NGUYÊN LIỆU", JLabel.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-        // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
-        // Create table model with column names
         model = new DefaultTableModel(new String[]{"ID", "Tên nguyên liệu", "Khối lượng(kg)", "Đơn giá", "Nhóm thực phẩm"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -70,7 +69,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Create input panel with form fields
         JPanel inputPanel = new JPanel(new BorderLayout());
         JPanel formPanel = new JPanel(new GridLayout(4, 2, 5, 5));
         
@@ -90,35 +88,37 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         nhomThucPhamComboBox = new JComboBox<>();
         formPanel.add(nhomThucPhamComboBox);
         
-        // Tải danh sách nhóm thực phẩm vào combo box
+        // Tải danh sách nhóm thực phẩm
         loadNhomThucPhamComboBox();
         
-        // Create buttons panel
+        // buttons panel
         buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         
         themButton = new JButton("Thêm");
         editButton = new JButton("Sửa");
         deleteButton = new JButton("Xóa");
         backButton = new JButton("Quay lại");
-        
-        // Add all buttons to panel
+
         buttonsPanel.add(themButton);
         buttonsPanel.add(editButton);
         buttonsPanel.add(deleteButton);
         buttonsPanel.add(backButton);
         
-        // Set initial visibility
+        // Hiển thị
         editButton.setVisible(false);
         deleteButton.setVisible(false);
         backButton.setVisible(false);
-        
-        // Add panels to input panel
+
         inputPanel.add(formPanel, BorderLayout.CENTER);
         inputPanel.add(buttonsPanel, BorderLayout.SOUTH);
         
         add(inputPanel, BorderLayout.SOUTH);
+        if(!currentUserEntity.getRole().equals("admin"))
+        {
+            inputPanel.setVisible(false);
+            buttonsPanel.setVisible(false);
+        }
 
-        // Add action listeners for buttons
         themButton.addActionListener(e -> {
             addNguyenLieu();
         });
@@ -132,47 +132,35 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         });
         
         backButton.addActionListener(e -> {
-            // Cancel editing and go back to default state
             clearFields();
             table.clearSelection();
         });
-        
-        // Add listener for table selection
+
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
-                    // Row selected - load data and show edit/delete buttons
                     tenField.setText(model.getValueAt(selectedRow, 1).toString());
                     donViField.setText(model.getValueAt(selectedRow, 2).toString());
                     donGiaField.setText(model.getValueAt(selectedRow, 3).toString());
-                    
-                    // Lấy thông tin nguyên liệu để tìm nhóm thực phẩm
+
                     int id = (int) model.getValueAt(selectedRow, 0);
-                    
                     try {
-                        // Lấy danh sách nguyên liệu từ controller
                         List<NguyenLieuDTO> dsNguyenLieu = nguyenLieuController.getAllNguyenLieu();
-                        
-                        // Tìm nguyên liệu có ID tương ứng
                         for (NguyenLieuDTO nl : dsNguyenLieu) {
                             if (nl.getId() == id) {
-                                // Tìm và chọn nhóm thực phẩm tương ứng trong ComboBox
                                 selectNhomThucPhamInComboBox(nl.getNhomThucPhamId());
                                 break;
                             }
                         }
                     } catch (Exception ex) {
-                        // Bỏ qua lỗi
                     }
-                    
-                    // Show edit/delete/back buttons, hide add button
+
                     themButton.setVisible(false);
                     editButton.setVisible(true);
                     deleteButton.setVisible(true);
                     backButton.setVisible(true);
                 } else {
-                    // No row selected - show add button, hide edit/delete buttons
                     themButton.setVisible(true);
                     editButton.setVisible(false);
                     deleteButton.setVisible(false);
@@ -183,21 +171,17 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     }
     
     /**
-     * Tải dữ liệu nguyên liệu từ controller theo mô hình MVC
+     * Tải dữ liệu nguyên liệu từ controller
      */
     private void loadNguyenLieu() {
-        model.setRowCount(0); // Xóa dữ liệu cũ trong bảng
+        model.setRowCount(0);
         
         try {
-            // Lấy danh sách nguyên liệu từ controller
             List<NguyenLieuDTO> dsNguyenLieu = nguyenLieuController.getAllNguyenLieu();
-            
-            // Kiểm tra nếu danh sách trống
             if (dsNguyenLieu.isEmpty()) {
                 System.out.println("Danh sách nguyên liệu trống, kiểm tra kết nối cơ sở dữ liệu");
             }
-            
-            // Thêm dữ liệu vào bảng
+
             for (NguyenLieuDTO nl : dsNguyenLieu) {
                 Object[] row = {
                     nl.getId(),
@@ -222,14 +206,8 @@ public class QuanLyNguyenLieuPanel extends JPanel {
     private void loadNhomThucPhamComboBox() {
         try {
             nhomThucPhamComboBox.removeAllItems();
-            
-            // Thêm mục mặc định
             nhomThucPhamComboBox.addItem(new NhomThucPhamEntity(0, "-- Chọn nhóm thực phẩm --", ""));
-            
-            // Lấy danh sách nhóm thực phẩm
             List<NhomThucPhamEntity> danhSachNhom = NhomThucPhamDao.getInstance().getAllNhomThucPham();
-            
-            // Thêm vào combo box
             for (NhomThucPhamEntity nhom : danhSachNhom) {
                 nhomThucPhamComboBox.addItem(nhom);
             }
@@ -247,12 +225,9 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         String ten = tenField.getText().trim();
         String donVi = donViField.getText().trim();
         String donGiaStr = donGiaField.getText().trim();
-        
-        // Lấy nhóm thực phẩm đã chọn
+
         NhomThucPhamEntity selectedNhom = (NhomThucPhamEntity) nhomThucPhamComboBox.getSelectedItem();
         int nhomThucPhamId = (selectedNhom != null) ? selectedNhom.id() : 0;
-        
-        // Validate input
         if (ten.isEmpty() || donVi.isEmpty() || donGiaStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -268,21 +243,17 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         try {
             Double khoiLuong = Double.parseDouble(donVi);
             BigDecimal donGia = new BigDecimal(donGiaStr);
-            
-            // Tạo DTO cho nguyên liệu mới (id=0 sẽ được bỏ qua khi thêm mới)
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(0);
             nlDto.setTenNguyenLieu(ten);
             nlDto.setKhoiLuong(khoiLuong);
             nlDto.setDonGia(donGia);
             nlDto.setNhomThucPhamId(nhomThucPhamId);
-            
-            // Gọi controller để thêm nguyên liệu
+
             boolean success = nguyenLieuController.addNguyenLieu(nlDto);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thành công!");
-                // Reset fields and reload data
                 clearFields();
                 loadNguyenLieu();
             } else {
@@ -311,12 +282,10 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         String ten = tenField.getText().trim();
         String donVi = donViField.getText().trim();
         String donGiaStr = donGiaField.getText().trim();
-        
-        // Lấy nhóm thực phẩm đã chọn
+
         NhomThucPhamEntity selectedNhom = (NhomThucPhamEntity) nhomThucPhamComboBox.getSelectedItem();
         int nhomThucPhamId = (selectedNhom != null) ? selectedNhom.id() : 0;
         
-        // Validate input
         if (ten.isEmpty() || donVi.isEmpty() || donGiaStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -332,21 +301,18 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         try {
             Double khoiLuong = Double.parseDouble(donVi);
             BigDecimal donGia = new BigDecimal(donGiaStr);
-            
-            // Tạo DTO cho nguyên liệu cần cập nhật
+
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(id);
             nlDto.setTenNguyenLieu(ten);
             nlDto.setKhoiLuong(khoiLuong);
             nlDto.setDonGia(donGia);
             nlDto.setNhomThucPhamId(nhomThucPhamId);
-            
-            // Sử dụng controller để cập nhật
+
             boolean success = nguyenLieuController.updateNguyenLieu(nlDto);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thành công!");
-                // Reset fields and reload data
                 clearFields();
                 loadNguyenLieu();
             } else {
@@ -383,7 +349,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thành công!");
-                // Reset fields and reload data
                 clearFields();
                 loadNguyenLieu();
             } else {
@@ -397,10 +362,9 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         tenField.setText("");
         donViField.setText("");
         donGiaField.setText("");
-        nhomThucPhamComboBox.setSelectedIndex(0); // Reset về mục mặc định
+        nhomThucPhamComboBox.setSelectedIndex(0);
         table.clearSelection();
         
-        // Reset button visibility
         themButton.setVisible(true);
         editButton.setVisible(false);
         deleteButton.setVisible(false);
@@ -419,7 +383,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
             }
         }
         
-        // Nếu không tìm thấy, chọn mục đầu tiên (mặc định)
         nhomThucPhamComboBox.setSelectedIndex(0);
     }
 } 

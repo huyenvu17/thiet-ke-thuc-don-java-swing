@@ -3,7 +3,7 @@ package entity;
 import java.math.BigDecimal;
 
 /**
- * Entity class representing a NguyenLieuEntity (Ingredient) in the system
+ * Entity class:  NguyenLieuEntity
  */
 public record NguyenLieuEntity(
         int id,

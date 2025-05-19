@@ -1,8 +1,7 @@
 package entity;
 
 /**
- * Entity representing a menu detail item (chi tiết thực đơn) in the database.
- * Implemented as a record for immutability and automatic implementation of common methods.
+ * Entity class: ChiTietThucDonEntity
  */
 public record ChiTietThucDonEntity(
     int id,
@@ -10,7 +9,6 @@ public record ChiTietThucDonEntity(
     int ngay,
     String buoi, // 'sang', 'trua', 'xe'
     int monAnId,
-    // Additional fields for display purposes
     String tenMon
 ) {
     /**

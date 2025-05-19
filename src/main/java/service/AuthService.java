@@ -1,43 +1,43 @@
 package service;
 
-import entity.User;
+import entity.UserEntity;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * Service class for handling authentication and session management
  */
 public class AuthService {
-    private static User currentUser = null;
+    private static UserEntity currentUserEntity = null;
     
     /**
      * Check if a user is authenticated
      * @return true if a user is logged in, false otherwise
      */
     public static boolean isAuthenticated() {
-        return currentUser != null;
+        return currentUserEntity != null;
     }
     
     /**
      * Get the currently logged in user
      * @return the current user or null if no user is logged in
      */
-    public static User getCurrentUser() {
-        return currentUser;
+    public static UserEntity getCurrentUser() {
+        return currentUserEntity;
     }
     
     /**
      * Set the current logged in user
-     * @param user The user to set as currently logged in
+     * @param userEntity The user to set as currently logged in
      */
-    public static void setCurrentUser(User user) {
-        currentUser = user;
+    public static void setCurrentUser(UserEntity userEntity) {
+        currentUserEntity = userEntity;
     }
     
     /**
      * Logout the current user
      */
     public static void logout() {
-        currentUser = null;
+        currentUserEntity = null;
     }
     
     /**
