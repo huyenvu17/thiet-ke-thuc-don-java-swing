@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for ThucDon entity
- * Implements the Singleton pattern
+ * DAO cho bảng thực đơn
  */
 public class ThucDonDao implements IThucDonDao {
     

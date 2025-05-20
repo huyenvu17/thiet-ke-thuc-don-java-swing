@@ -12,9 +12,12 @@ import java.sql.Statement;
 
 /**
  * DatabaseConnection
+ *
+ * @author huyen
  */
-public class DatabaseConnection {
-    public Connection connection;
+public class DatabaseConnection implements AutoCloseable {
+
+    Connection connection;
 
     public static void dangKyDriver() throws ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -25,6 +28,7 @@ public class DatabaseConnection {
         this.connection = getConnection();
     }
 
+    @Override
     public void close() throws SQLException {
         if (this.connection != null && !this.connection.isClosed()) {
             this.connection.close();
@@ -54,11 +58,15 @@ public class DatabaseConnection {
             String databaseName,
             String user,
             String pass) throws SQLException {
-        String connectionUrl = "jdbc:mysql://" + serverIP + ":3306/" + databaseName + 
-                               "?user=" + user + "&password=" + pass;
+        StringBuilder sbd = new StringBuilder();
+        sbd.append("jdbc:mysql://");
+        sbd.append(serverIP).append(":3306");
+        sbd.append("/").append(databaseName);
+        sbd.append("?user=").append(user);
+        sbd.append("&password=").append(pass);
         
         try {
-            Connection conn = DriverManager.getConnection(connectionUrl);
+            Connection conn = DriverManager.getConnection(sbd.toString());
             System.out.println("Kết nối database thành công!");
             return conn;
         } catch (SQLException e) {

@@ -13,9 +13,6 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
     
     private static NhomThucPhamDao instance;
     
-    /**
-     * Singleton pattern - Lấy instance duy nhất
-     */
     public static NhomThucPhamDao getInstance() {
         if (instance == null) {
             instance = new NhomThucPhamDao();
@@ -23,9 +20,6 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         return instance;
     }
     
-    /**
-     * Constructor riêng tư - theo mẫu Singleton
-     */
     private NhomThucPhamDao() {
     }
     
@@ -46,11 +40,9 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
     @Override
     public List<NhomThucPhamEntity> getAllNhomThucPham() {
         List<NhomThucPhamEntity> list = new ArrayList<>();
-        
-        try (Connection conn = new DatabaseConnection().connection;
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM vw_nhomthucpham ORDER BY id")) {
-            
+        String sql = "SELECT * FROM vw_nhomthucpham ORDER BY id";
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sql);
             while (rs.next()) {
                 list.add(mapResultSetToNhomThucPham(rs));
             }
@@ -68,16 +60,14 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
     @Override
     public NhomThucPhamEntity getById(int id) {
         NhomThucPhamEntity entity = null;
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT * FROM nhomthucpham WHERE id = ");
+        sqlBuilder.append(id);
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM nhomthucpham WHERE id = ?")) {
-            
-            stmt.setInt(1, id);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    entity = mapResultSetToNhomThucPham(rs);
-                }
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sqlBuilder.toString());
+            if (rs.next()) {
+                entity = mapResultSetToNhomThucPham(rs);
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy nhóm thực phẩm theo ID: " + e.getMessage());
@@ -92,24 +82,23 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
      */
     @Override
     public int addNhomThucPham(NhomThucPhamEntity entity) {
-        String sql = "INSERT INTO nhomthucpham (ten_nhom, mo_ta) VALUES (?, ?)";
-        int newId = -1;
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO nhomthucpham");
+        sqlBuilder.append(" (ten_nhom, mo_ta)");
+        sqlBuilder.append(" VALUES (");
+        sqlBuilder.append("'").append(entity.tenNhom()).append("'");
+        sqlBuilder.append(", '").append(entity.moTa()).append("'");
+        sqlBuilder.append(")");
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        int newId = -1;
+        String sql = "SELECT LAST_INSERT_ID()";
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
             
-            stmt.setString(1, entity.tenNhom());
-            stmt.setString(2, entity.moTa());
-            
-            int affectedRows = stmt.executeUpdate();
-            
-            if (affectedRows == 0) {
-                throw new SQLException("Thêm nhóm thực phẩm thất bại, không có dòng nào được thêm.");
-            }
-            
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    newId = generatedKeys.getInt(1);
+            if (affectedRows > 0) {
+                ResultSet rs = provider.executeQuery(sql);
+                if (rs.next()) {
+                    newId = rs.getInt(1);
                 }
             }
         } catch (SQLException e) {
@@ -125,17 +114,16 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
      */
     @Override
     public boolean updateNhomThucPham(NhomThucPhamEntity entity) {
-        String sql = "UPDATE nhomthucpham SET ten_nhom = ?, mo_ta = ? WHERE id = ?";
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("UPDATE nhomthucpham SET ");
+        sqlBuilder.append("ten_nhom = '").append(entity.tenNhom()).append("'");
+        sqlBuilder.append(", mo_ta = '").append(entity.moTa()).append("'");
+        sqlBuilder.append(" WHERE id = ").append(entity.id());
+        
         boolean success = false;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, entity.tenNhom());
-            stmt.setString(2, entity.moTa());
-            stmt.setInt(3, entity.id());
-            
-            int affectedRows = stmt.executeUpdate();
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
             success = (affectedRows > 0);
         } catch (SQLException e) {
             System.err.println("Lỗi khi cập nhật nhóm thực phẩm: " + e.getMessage());
@@ -150,15 +138,14 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
      */
     @Override
     public boolean deleteNhomThucPham(int id) {
-        String sql = "DELETE FROM nhomthucpham WHERE id = ?";
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("DELETE FROM nhomthucpham WHERE id = ");
+        sqlBuilder.append(id);
+        
         boolean success = false;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            
-            int affectedRows = stmt.executeUpdate();
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
             success = (affectedRows > 0);
         } catch (SQLException e) {
             System.err.println("Lỗi khi xóa nhóm thực phẩm: " + e.getMessage());
@@ -173,17 +160,16 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
      */
     @Override
     public int getSoLuongNguyenLieu(int nhomThucPhamId) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT COUNT(*) AS so_luong FROM nguyenlieu WHERE nhom_thuc_pham_id = ");
+        sqlBuilder.append(nhomThucPhamId);
+        
         int soLuong = 0;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) AS so_luong FROM nguyenlieu WHERE nhom_thuc_pham_id = ?")) {
-            
-            stmt.setInt(1, nhomThucPhamId);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    soLuong = rs.getInt("so_luong");
-                }
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sqlBuilder.toString());
+            if (rs.next()) {
+                soLuong = rs.getInt("so_luong");
             }
         } catch (SQLException e) {
             System.err.println("Lỗi khi lấy số lượng nguyên liệu thuộc nhóm: " + e.getMessage());
@@ -191,26 +177,5 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         }
         
         return soLuong;
-    }
-    
-    /**
-     * Phương thức tiện ích để thực hiện gọi save theo ý muốn của panel
-     */
-    public int save(NhomThucPhamEntity entity) {
-        return addNhomThucPham(entity);
-    }
-    
-    /**
-     * Phương thức tiện ích để thực hiện gọi update theo ý muốn của panel
-     */
-    public boolean update(NhomThucPhamEntity entity) {
-        return updateNhomThucPham(entity);
-    }
-    
-    /**
-     * Phương thức tiện ích để thực hiện gọi delete theo ý muốn của panel
-     */
-    public boolean delete(int id) {
-        return deleteNhomThucPham(id);
     }
 } 

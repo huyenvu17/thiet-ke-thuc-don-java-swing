@@ -44,10 +44,10 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                        "JOIN monan m ON ct.mon_an_id = m.id " +
                        "JOIN nguyenlieu nl ON ct.nguyen_lieu_id = nl.id";
         
-        try (Connection conn = new DatabaseConnection().connection;
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            
+        try {
+            Connection conn = new DatabaseConnection().connection;
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 CongThucMonAnEntity congThuc = new CongThucMonAnEntity(
                         rs.getInt("id"),

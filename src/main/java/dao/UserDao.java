@@ -6,6 +6,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO cho bảng người dùng
+ */
 public class UserDao {
     /**
      * Tìm người dùng theo tên đăng nhập

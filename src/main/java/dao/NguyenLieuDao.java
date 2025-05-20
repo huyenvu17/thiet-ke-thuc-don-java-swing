@@ -2,17 +2,13 @@ package dao;
 
 import entity.NguyenLieuEntity;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for NguyenLieuEntity
- * Handles database operations for ingredients
+ * DAO cho bảng nguyên liệu
  */
 public class NguyenLieuDao implements INguyenLieuDao {
     
@@ -53,11 +49,10 @@ public class NguyenLieuDao implements INguyenLieuDao {
     @Override
     public List<NguyenLieuEntity> getAllNguyenLieu() {
         List<NguyenLieuEntity> dsNguyenLieu = new ArrayList<>();
+        String sql = "SELECT * FROM vw_nguyenlieu_theotennhom";
         
-        try (Connection conn = new DatabaseConnection().connection;
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM vw_nguyenlieu_theotennhom")) {
-            
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sql);
             while (rs.next()) {
                 dsNguyenLieu.add(mapResultSetToNguyenLieu(rs));
             }
@@ -71,26 +66,21 @@ public class NguyenLieuDao implements INguyenLieuDao {
 
     @Override
     public int addNguyenLieu(NguyenLieuEntity entity) {
-        String sql = "INSERT INTO nguyenlieu (ten_nguyen_lieu, khoi_luong, don_gia) VALUES (?, ?, ?)";
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("INSERT INTO nguyenlieu");
+        sqlBuilder.append(" (ten_nguyen_lieu, khoi_luong, don_gia)");
+        sqlBuilder.append(" VALUES (");
+        sqlBuilder.append("'").append(entity.tenNguyenLieu()).append("'");
+        sqlBuilder.append(", ").append(entity.khoiLuong());
+        sqlBuilder.append(", ").append(entity.donGia());
+        sqlBuilder.append("); SELECT LAST_INSERT_ID()");
+        
         int newId = -1;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
-            stmt.setString(1, entity.tenNguyenLieu());
-            stmt.setDouble(2, entity.khoiLuong());
-            stmt.setBigDecimal(3, entity.donGia());
-            
-            int affectedRows = stmt.executeUpdate();
-            
-            if (affectedRows == 0) {
-                throw new SQLException("Creating NguyenLieu failed, no rows affected.");
-            }
-            
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    newId = generatedKeys.getInt(1);
-                }
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sqlBuilder.toString());
+            if (rs.next()) {
+                newId = rs.getInt(1);
             }
         } catch (SQLException e) {
             System.err.println("Error adding nguyen lieu: " + e.getMessage());
@@ -105,16 +95,14 @@ public class NguyenLieuDao implements INguyenLieuDao {
      */
     public NguyenLieuEntity getById(int id) {
         NguyenLieuEntity entity = null;
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT * FROM nguyenlieu WHERE id = ");
+        sqlBuilder.append(id);
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM nguyenlieu WHERE id = ?")) {
-            
-            stmt.setInt(1, id);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    entity = mapResultSetToNguyenLieu(rs);
-                }
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            ResultSet rs = provider.executeQuery(sqlBuilder.toString());
+            if (rs.next()) {
+                entity = mapResultSetToNguyenLieu(rs);
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving nguyen lieu by id: " + e.getMessage());
@@ -128,18 +116,17 @@ public class NguyenLieuDao implements INguyenLieuDao {
      * Update an existing NguyenLieuEntity
      */
     public boolean updateNguyenLieu(NguyenLieuEntity entity) {
-        String sql = "UPDATE nguyenlieu SET ten_nguyen_lieu = ?, khoi_luong = ?, don_gia = ? WHERE id = ?";
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("UPDATE nguyenlieu SET ");
+        sqlBuilder.append("ten_nguyen_lieu = '").append(entity.tenNguyenLieu()).append("'");
+        sqlBuilder.append(", khoi_luong = ").append(entity.khoiLuong());
+        sqlBuilder.append(", don_gia = ").append(entity.donGia());
+        sqlBuilder.append(" WHERE id = ").append(entity.id());
+        
         boolean success = false;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, entity.tenNguyenLieu());
-            stmt.setDouble(2, entity.khoiLuong());
-            stmt.setBigDecimal(3, entity.donGia());
-            stmt.setInt(4, entity.id());
-            
-            int affectedRows = stmt.executeUpdate();
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
             success = (affectedRows > 0);
         } catch (SQLException e) {
             System.err.println("Error updating nguyen lieu: " + e.getMessage());
@@ -153,15 +140,14 @@ public class NguyenLieuDao implements INguyenLieuDao {
      * Delete a NguyenLieuEntity by ID
      */
     public boolean deleteNguyenLieu(int id) {
-        String sql = "DELETE FROM nguyenlieu WHERE id = ?";
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("DELETE FROM nguyenlieu WHERE id = ");
+        sqlBuilder.append(id);
+        
         boolean success = false;
         
-        try (Connection conn = new DatabaseConnection().connection;
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setInt(1, id);
-            
-            int affectedRows = stmt.executeUpdate();
+        try (DatabaseConnection provider = new DatabaseConnection()) {
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
             success = (affectedRows > 0);
         } catch (SQLException e) {
             System.err.println("Error deleting nguyen lieu: " + e.getMessage());

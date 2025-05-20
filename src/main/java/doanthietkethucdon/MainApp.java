@@ -17,7 +17,7 @@ import jiconfont.swing.IconFontSwing;
 import jiconfont.icons.font_awesome.FontAwesome;
 
 /**
- * Lớp ứng dụng chính
+ * MainApp
  */
 public class MainApp extends JFrame implements DangNhapDangKyPanel.AuthenticationListener {
     private JPanel contentPanel;
