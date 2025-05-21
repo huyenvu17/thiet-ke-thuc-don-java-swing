@@ -212,7 +212,7 @@ public class MainApp extends JFrame implements DangNhapDangKyPanel.Authenticatio
     public static void main(String[] args) {
         try {
             DatabaseConnection.dangKyDriver();
-            DatabaseConnection connection = new DatabaseConnection()
+            DatabaseConnection connection = new DatabaseConnection();
             
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             
