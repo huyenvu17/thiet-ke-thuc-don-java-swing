@@ -4,34 +4,141 @@
 Ứng dụng này được thiết kế để giúp tạo và quản lý thực đơn cho trẻ mầm non. Cho phép người dùng định nghĩa nguyên liệu, tạo các món ăn và tạo thực đơn cân bằng dinh dưỡng trong giới hạn ngân sách. Hệ thống đặc biệt tập trung vào việc thiết kế các bữa ăn bổ dưỡng và phù hợp với chi phí cho các cơ sở giáo dục mầm non.
 
 ## Tính Năng Chính
+- **Đăng nhập/Đăng Ký**: Đăng nhập và đăng ký tài khoản sử dụng
+- **Quản Lý Hồ Sơ**: Quản lý thông tin tài khoản
 - **Quản Lý Nguyên Liệu**: Thêm, chỉnh sửa và theo dõi nguyên liệu với thông tin giá cả
-- **Tạo Món Ăn**: Tạo và phân loại món ăn cho bữa sáng, bữa trưa và bữa xế
+- **Quản Lý Nhóm Thực Phẩm**: Quản lý thông tin nhóm thực phẩm
+- **Quản Lý Món Ăn**: Tạo và phân loại món ăn cho bữa sáng, bữa trưa và bữa xế
+- **Quản Lý Công Thức Món Ăn**: Quản lý thông tin công thức món ắn
 - **Thiết Kế Thực Đơn**: Tạo thực đơn cho số ngày được chỉ định với giới hạn ngân sách
 - **Danh Mục Thực Đơn**: Xem và quản lý các thực đơn đã lưu
-- **Tính Toán Chi Phí**: Tự động tính toán chi phí bữa ăn dựa trên nguyên liệu
 
 ## Cấu Trúc Cơ Sở Dữ Liệu
-Ứng dụng sử dụng cơ sở dữ liệu MySQL với các bảng chính sau:
-- **nguyenlieu**: Lưu trữ thông tin về nguyên liệu thực phẩm, đơn vị và giá cả
-- **monan**: Chứa chi tiết món ăn bao gồm tên, loại và hướng dẫn chế biến
-- **congthucmonan**: Ánh xạ nguyên liệu với món ăn và số lượng cụ thể
-- **thucdon**: Lưu trữ các thực đơn đã tạo với tên và thời gian
-- **chitietthucdon**: Chứa các món ăn cụ thể được gán cho mỗi bữa ăn của mỗi ngày
+Cấu trúc cơ sở dữ liệu chính của ứng dụng bao gồm các bảng sau:
+
+1. **users** - Quản lý thông tin người dùng hệ thống
+   - id (PK): int
+   - username: varchar(50)
+   - password: varchar(100) 
+   - full_name: varchar(100)
+   - email: varchar(100)
+   - phone: varchar(20)
+   - role: varchar(20)
+
+2. **nhom_thuc_pham** - Nhóm các nguyên liệu
+   - id (PK): int
+   - ten_nhom: varchar(100)
+   - mo_ta: text
+
+3. **nguyen_lieu** - Thông tin nguyên liệu nấu ăn
+   - id (PK): int  
+   - ten_nguyen_lieu: varchar(100)
+   - khoi_luong: double
+   - don_gia: double
+   - nhom_thuc_pham_id (FK): int
+
+4. **mon_an** - Danh sách các món ăn
+   - id (PK): int
+   - ten_mon: varchar(100)
+   - loai_mon: varchar(50)
+   - cach_che_bien: text
+
+5. **thuc_don** - Thực đơn ăn uống
+   - id (PK): int
+   - ten_thuc_don: varchar(100)
+   - so_ngay: int
+
+6. **mon_an_thuc_don** - Bảng liên kết món ăn và thực đơn
+   - id (PK): int
+   - mon_an_id (FK): int
+   - thuc_don_id (FK): int
+   - so_luong: int
+
+7. **nguyen_lieu_mon_an** - Bảng liên kết nguyên liệu và món ăn
+   - id (PK): int
+   - nguyen_lieu_id (FK): int
+   - mon_an_id (FK): int
+   - khoi_luong: double
+
+Các ràng buộc quan trọng:
+- Khóa ngoại từ nguyen_lieu.nhom_thuc_pham_id → nhom_thuc_pham.id
+- Khóa ngoại từ mon_an_thuc_don.mon_an_id → mon_an.id
+- Khóa ngoại từ mon_an_thuc_don.thuc_don_id → thuc_don.id
+- Khóa ngoại từ nguyen_lieu_mon_an.nguyen_lieu_id → nguyen_lieu.id
+- Khóa ngoại từ nguyen_lieu_mon_an.mon_an_id → mon_an.id
 
 ## Công Cụ và Thư Viện
-- **Java 17**: Ngôn ngữ lập trình cốt lõi
-- **Maven**: Công cụ quản lý và xây dựng dự án
-- **MySQL**: Hệ thống quản lý cơ sở dữ liệu
-- **MySQL Connector/J**: Trình điều khiển JDBC cho MySQL (phiên bản 9.2.0)
-- **Swing**: Bộ công cụ giao diện người dùng Java
+- **Java 17**
+- **Maven**
+- **MySQL**
+- **MySQL Connector/J**
+- **Java Swing**
 
 ## Kiến Trúc
-Ứng dụng tuân theo kiến trúc phân lớp:
-- **Lớp Giao Diện**: Các thành phần giao diện người dùng dựa trên Swing
-- **Lớp Điều Khiển**: Xử lý đầu vào người dùng và điều phối các hành động
-- **Lớp Dịch Vụ**: Chứa logic nghiệp vụ cho việc tạo thực đơn
-- **Lớp DAO**: Các đối tượng truy cập dữ liệu cho các thao tác cơ sở dữ liệu
-- **Lớp Thực Thể**: Các đối tượng mô hình dữ liệu đại diện cho các bảng cơ sở dữ liệu
+Ứng dụng áp dụng kiến trúc phân lớp dựa trên mô hình MVC (Model-View-Controller) với các thành phần được tổ chức rõ ràng:
+
+- **View Layer (Giao diện người dùng)**  
+  + Các panel Java Swing: `LoginRegisterPanel`, `MainFrame`, `IngredientPanel`, `DishPanel`, `MenuPanel`...
+  + Hiển thị dữ liệu và thu thập tương tác người dùng thông qua các component Swing
+  + Chỉ giao tiếp với Controller layer, không truy cập trực tiếp đến Model hoặc DAO
+  + Nhận kết quả từ Controller và cập nhật UI tương ứng
+
+- **Controller Layer (Điều khiển)**  
+  + Triển khai theo mẫu Singleton (vd: `AuthController.getInstance()`)
+  + Định nghĩa interface rõ ràng: `IMonAnController`, `IThucDonController`, `INguyenLieuController`...
+  + Xử lý các request từ View, chuyển đổi dữ liệu qua lại giữa DTO và Service
+  + Điều phối luồng xử lý giữa View và Service layer
+
+- **Service Layer (Xử lý nghiệp vụ)**  
+  + Triển khai các lớp như `AuthService`, `MenuService`, `DishService`, `IngredientService`...
+  + Chứa toàn bộ business logic: xác thực người dùng, thiết kế thực đơn, tính toán dinh dưỡng
+  + Chuyển đổi giữa các đối tượng domain và entity sử dụng Factory Method pattern
+  + Gọi DAO để thực hiện các thao tác CRUD với database
+
+- **Model Layer (Dữ liệu)**  
+  + **Entity**: Ánh xạ trực tiếp với cấu trúc database (`UserEntity`, `IngredientEntity`, `DishEntity`...)
+  + **Domain Objects**: Chứa business state và behavior (`User`, `Ingredient`, `Dish`, `Menu`...)
+  + **DTO**: Đóng gói dữ liệu truyền giữa các layer (`NguyenLieuDTO`, `ThucDonDTO`, `MonAnDTO`...)
+  + Áp dụng Factory Method pattern để chuyển đổi giữa các loại đối tượng
+
+- **DAO Layer (Truy cập dữ liệu)**  
+  + Định nghĩa interface (`IUserDao`, `IIngredientDao`, `IDishDao`, `IMenuDao`...) và các lớp triển khai
+  + Cung cấp các phương thức CRUD cho từng entity
+  + Sử dụng JDBC để tương tác với MySQL database
+  + Áp dụng Singleton pattern để quản lý kết nối database (`DatabaseConnection`)
+
+**Luồng xử lý điển hình**:
+1. Người dùng tương tác với giao diện (vd: tạo thực đơn mới)
+2. View (`ThietKeThucDonPanel`) thu thập input và gọi Controller (`ThucDonController.taoThucDon(thucDonDTO)`)
+3. Controller xác thực dữ liệu và chuyển yêu cầu đến Service (`ThucDonService.taoThucDon(thucDonModel)`)
+4. Service áp dụng business rules, xử lý logic, và gọi DAO (`ThucDonDao.insert(thucDonEntity)`)
+5. DAO thực hiện các thao tác với database và trả về kết quả
+6. Kết quả được truyền ngược lại qua các layer: DAO → Service → Controller → View
+7. View cập nhật UI để phản hồi cho người dùng
+
+Kiến trúc phân lớp này mang lại nhiều lợi ích:
+- Mỗi layer có trách nhiệm rõ ràng, giới hạn
+- Các thành phần có thể phát triển và kiểm thử độc lập
+- Thay đổi ở một layer ít ảnh hưởng đến các layer khác
+- Logic nghiệp vụ trong Service layer có thể được kiểm thử mà không cần UI
+- Công nghệ database có thể thay đổi mà không ảnh hưởng đến business logic
+
+
+# Design Pattern
+**Design Patterns chính trong dự án**
+
+- **Singleton Pattern**  
+  - Sử dụng trong các lớp Controller và Service (MonAnController, ThucDonService,...)  
+  - Đảm bảo chỉ có một instance duy nhất trong suốt vòng đời ứng dụng  
+  - Triển khai qua phương thức static `getInstance()`  
+  - Ví dụ: `MonAnController.getInstance()`  
+
+- **Factory Method Pattern**  
+  - Sử dụng để chuyển đổi giữa Entity và DTO  
+  - Đóng gói logic tạo đối tượng trong các factory method  
+  - Giảm sự phụ thuộc trực tiếp vào lớp cụ thể  
+  - Ví dụ: `MonAnDTO.fromEntity(MonAnEntity entity)`  
+
 
 ## Quy Trình Cài Đặt
 
@@ -42,32 +149,15 @@
 
 ### Cài Đặt Cơ Sở Dữ Liệu
 1. Cài đặt MySQL nếu chưa có
-2. Tạo cơ sở dữ liệu có tên `thietkethucdonapp`
-3. Thực thi script SQL `thietkethucdon_db.sql` để tạo các bảng cần thiết
+3. Thực thi script SQL `thietkethucdon_db.sql` để tạo database và các bảng cần thiết
 
 ### Cài Đặt Ứng Dụng
-1. Sao chép repository
+1. Mở thư mục source code
 2. Cập nhật thông số kết nối cơ sở dữ liệu trong `src/main/java/dao/DatabaseConnection.java` nếu cần
    - Cài đặt mặc định:
      - Host: localhost (127.0.0.1)
      - Database: thietkethucdonapp
      - User: root
      - Password: 111111
-3. Xây dựng dự án bằng Maven:
-   ```
-   mvn clean package
-   ```
-4. Chạy ứng dụng:
-   ```
-   java -jar target/DoAnThietKeThucDon-1.0-SNAPSHOT.jar
-   ```
-   Hoặc sử dụng plugin Maven exec:
-   ```
-   mvn exec:java
-   ```
-
-## Cách Sử Dụng
-1. Bắt đầu bằng cách thêm nguyên liệu trong phần Quản lý
-2. Tạo các món ăn sử dụng nguyên liệu có sẵn
-3. Sử dụng tính năng "Thiết kế thực đơn" để tạo thực đơn
-4. Xem và quản lý các thực đơn đã tạo trong phần "Danh sách thực đơn"
+3. Build thư viện Maven:
+4. Chạy ứng dụng: MainApp.java
