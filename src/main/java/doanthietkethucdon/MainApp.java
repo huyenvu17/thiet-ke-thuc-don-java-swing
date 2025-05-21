@@ -16,6 +16,8 @@ import ui.DangNhapDangKyPanel;
 import jiconfont.swing.IconFontSwing;
 import jiconfont.icons.font_awesome.FontAwesome;
 
+import java.sql.SQLException;
+
 /**
  * MainApp
  */
@@ -184,6 +186,23 @@ public class MainApp extends JFrame implements DangNhapDangKyPanel.Authenticatio
             initMainContent(userEntity);
         } else if (hoSoPanel != null) {
             hoSoPanel.updateUser(userEntity);
+            // Cập nhật lại thanh công cụ mỗi khi đăng nhập với vai trò khác
+            Container contentPane = mainContentPanel.getParent();
+            if (contentPane instanceof JPanel) {
+                JPanel mainAppPanel = (JPanel) contentPane;
+                // Xóa thanh công cụ cũ
+                for (Component comp : mainAppPanel.getComponents()) {
+                    if (comp instanceof JToolBar) {
+                        mainAppPanel.remove(comp);
+                        break;
+                    }
+                }
+                // Thêm thanh công cụ mới
+                JToolBar newToolBar = createToolbar();
+                mainAppPanel.add(newToolBar, BorderLayout.NORTH);
+                mainAppPanel.revalidate();
+                mainAppPanel.repaint();
+            }
         }
         
         cardLayout.show(contentPanel, MAIN_CONTENT);
@@ -193,6 +212,8 @@ public class MainApp extends JFrame implements DangNhapDangKyPanel.Authenticatio
     public static void main(String[] args) {
         try {
             DatabaseConnection.dangKyDriver();
+            DatabaseConnection connection = new DatabaseConnection()
+            
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             
             SwingUtilities.invokeLater(() -> {

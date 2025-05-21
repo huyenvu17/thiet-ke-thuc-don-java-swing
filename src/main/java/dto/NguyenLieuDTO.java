@@ -19,23 +19,20 @@ public class NguyenLieuDTO {
     // Default constructor
     public NguyenLieuDTO() {
     }
-    
-    // Constructor with all fields except ID
+
     public NguyenLieuDTO(String tenNguyenLieu, Double khoiLuong, Double donGia) {
         this.tenNguyenLieu = tenNguyenLieu;
         this.khoiLuong = khoiLuong;
         this.donGia = donGia;
     }
-    
-    // Constructor with ID, tenNguyenLieu, khoiLuong, donGia
+
     public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, Double donGia) {
         this.id = id;
         this.tenNguyenLieu = tenNguyenLieu;
         this.khoiLuong = khoiLuong;
         this.donGia = donGia;
     }
-    
-    // Constructor with all fields
+
     public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, Double donGia, 
                         int nhomThucPhamId, String tenNhomThucPham) {
         this.id = id;

@@ -307,7 +307,6 @@ public class ThietKeThucDonPanel extends JPanel {
             }
         }
         
-        // Create DTO for menu generation
         ThietKeThucDonDTO thietKeDto = new ThietKeThucDonDTO(
                 tenThucDon,
                 soNgay,
@@ -317,22 +316,39 @@ public class ThietKeThucDonPanel extends JPanel {
                 selectedNguyenLieuIds
         );
         
-        // Use controller to generate menu
         int thucDonId = thietKeThucDonController.generateThucDon(thietKeDto);
         
-        if (thucDonId <= 0) {
-            JOptionPane.showMessageDialog(this, "Không thể tạo thực đơn. Vui lòng thử lại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (thucDonId < 0) {
+            switch (thucDonId) {
+                case -1:
+                    JOptionPane.showMessageDialog(this, 
+                            "Không thể tạo thực đơn. Có lỗi xảy ra trong quá trình tạo.", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    break;
+                case -2:
+                    JOptionPane.showMessageDialog(this, 
+                            "Không thể tạo thực đơn. Không tìm thấy món ăn nào phù hợp với nguyên liệu đã chọn.\n" +
+                            "Vui lòng chọn thêm nguyên liệu hoặc kiểm tra lại công thức món ăn.", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    break;
+                case -3:
+                    JOptionPane.showMessageDialog(this, 
+                            "Không thể tạo thực đơn. Không đủ món ăn cho tất cả các bữa (sáng, trưa, tối).\n" +
+                            "Vui lòng thêm món ăn cho các bữa còn thiếu hoặc chọn nhiều nguyên liệu hơn.", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, 
+                            "Không thể tạo thực đơn. Mã lỗi: " + thucDonId, 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
             return;
         }
         
-        // Show success message
         JOptionPane.showMessageDialog(this, "Đã tạo thực đơn thành công! Bạn có thể xem chi tiết trong phần 'Danh Sách Thực Đơn'");
         
-        // Clear form
         tenThucDonField.setText("");
         soNgaySpinner.setValue(7);
-        
-        // Hiển thị thông tin thực đơn đã tạo
         displayThucDonResult(thucDonId, selectedNguyenLieuIds);
     }
     

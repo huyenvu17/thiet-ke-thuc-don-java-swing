@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * DatabaseConnection
  *
- * @author huyen
+ * @author ADMIN
  */
 public class DatabaseConnection implements AutoCloseable {
 
     Connection connection;
+    private static boolean isFirstConnection = true;
 
     public static void dangKyDriver() throws ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -67,7 +67,12 @@ public class DatabaseConnection implements AutoCloseable {
         
         try {
             Connection conn = DriverManager.getConnection(sbd.toString());
-            System.out.println("Kết nối database thành công!");
+            
+            if (isFirstConnection) {
+                System.out.println("Kết nối database thành công!");
+                isFirstConnection = false;
+            }
+            
             return conn;
         } catch (SQLException e) {
             System.err.println("Kết nối database thất bại!: " + e.getMessage());

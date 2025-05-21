@@ -12,7 +12,8 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Panel thông tin hồ sơ người dùng
+ *
+ * @author ADMIN
  */
 public class HoSoPanel extends JPanel {
     

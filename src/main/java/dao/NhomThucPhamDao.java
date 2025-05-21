@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO cho bảng nhóm thực phẩm
+ *
+ * @author ADMIN
  */
 public class NhomThucPhamDao implements INhomThucPhamDao {
     
@@ -22,10 +23,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
     
     private NhomThucPhamDao() {
     }
-    
-    /**
-     * Map ResultSet thành đối tượng NhomThucPhamEntity
-     */
+
     private NhomThucPhamEntity mapResultSetToNhomThucPham(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String tenNhom = rs.getString("ten_nhom");
@@ -33,10 +31,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return new NhomThucPhamEntity(id, tenNhom, moTa);
     }
-    
-    /**
-     * Lấy danh sách tất cả nhóm thực phẩm
-     */
+
     @Override
     public List<NhomThucPhamEntity> getAllNhomThucPham() {
         List<NhomThucPhamEntity> list = new ArrayList<>();
@@ -53,10 +48,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return list;
     }
-    
-    /**
-     * Lấy nhóm thực phẩm theo ID
-     */
+
     @Override
     public NhomThucPhamEntity getById(int id) {
         NhomThucPhamEntity entity = null;
@@ -76,10 +68,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return entity;
     }
-    
-    /**
-     * Lưu nhóm thực phẩm mới
-     */
+
     @Override
     public int addNhomThucPham(NhomThucPhamEntity entity) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -108,10 +97,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return newId;
     }
-    
-    /**
-     * Cập nhật nhóm thực phẩm
-     */
+
     @Override
     public boolean updateNhomThucPham(NhomThucPhamEntity entity) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -132,10 +118,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return success;
     }
-    
-    /**
-     * Xóa nhóm thực phẩm
-     */
+
     @Override
     public boolean deleteNhomThucPham(int id) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -154,10 +137,7 @@ public class NhomThucPhamDao implements INhomThucPhamDao {
         
         return success;
     }
-    
-    /**
-     * Lấy số lượng nguyên liệu thuộc nhóm thực phẩm
-     */
+
     @Override
     public int getSoLuongNguyenLieu(int nhomThucPhamId) {
         StringBuilder sqlBuilder = new StringBuilder();

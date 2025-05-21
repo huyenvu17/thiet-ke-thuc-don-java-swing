@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO cho bảng người dùng
+ *
+ * @author ADMIN
  */
 public class UserDao {
-    /**
-     * Tìm người dùng theo tên đăng nhập
-     */
+
     public UserEntity findByUsername(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
         try (Connection conn = new DatabaseConnection().connection;
@@ -28,9 +27,6 @@ public class UserDao {
         return null;
     }
 
-    /**
-     * Thêm người dùng mới
-     */
     public boolean addUser(UserEntity userEntity) {
         String sql = "INSERT INTO user (username, password, full_name, email, phone, role) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = new DatabaseConnection().connection;
@@ -52,9 +48,6 @@ public class UserDao {
         return false;
     }
 
-    /**
-     * Xác thực người dùng
-     */
     public UserEntity login(String username, String password) {
         // Tìm người dùng theo tên đăng nhập
         UserEntity userEntity = findByUsername(username);
@@ -67,16 +60,13 @@ public class UserDao {
         return null;
     }
 
-    /**
-     * Cập nhật thông tin người dùng
-     */
     public boolean updateUser(UserEntity userEntity) {
         // Lấy thông tin người dùng hiện tại
         UserEntity existingUserEntity = findById(userEntity.getId());
         if (existingUserEntity == null) {
             return false;
         }
-        
+
         // Kiểm tra xem mật khẩu đã thay đổi chưa
         boolean passwordChanged = !userEntity.getPassword().equals(existingUserEntity.getPassword());
         
@@ -86,7 +76,7 @@ public class UserDao {
             ps.setString(1, userEntity.getFullName());
             ps.setString(2, userEntity.getEmail());
             ps.setString(3, userEntity.getPhone());
-            
+
             // Nếu mật khẩu thay đổi, mã hóa mật khẩu mới
             if (passwordChanged) {
                 ps.setString(4, AuthService.hashPassword(userEntity.getPassword()));
@@ -103,9 +93,6 @@ public class UserDao {
         return false;
     }
 
-    /**
-     * Tìm người dùng theo ID
-     */
     public UserEntity findById(int id) {
         String sql = "SELECT * FROM user WHERE id = ?";
         try (Connection conn = new DatabaseConnection().connection;
@@ -121,9 +108,6 @@ public class UserDao {
         return null;
     }
 
-    /**
-     * Xóa người dùng
-     */
     public boolean deleteUser(int id) {
         String sql = "DELETE FROM user WHERE id=?";
         try (Connection conn = new DatabaseConnection().connection;
@@ -136,9 +120,6 @@ public class UserDao {
         return false;
     }
 
-    /**
-     * Lấy danh sách tất cả người dùng
-     */
     public List<UserEntity> getAllUsers() {
         List<UserEntity> list = new ArrayList<>();
         String sql = "SELECT * FROM user";
@@ -154,9 +135,6 @@ public class UserDao {
         return list;
     }
 
-    /**
-     * Chuyển đổi ResultSet thành đối tượng User
-     */
     private UserEntity mapResultSetToUser(ResultSet rs) throws SQLException {
         return new UserEntity(
             rs.getInt("id"),

@@ -38,20 +38,14 @@ public class NguyenLieuController implements INguyenLieuController{
      * Don't let anyone instantiate this class.
      */
     private NguyenLieuController() {
-        // Khởi tạo service và thiết lập DAO
         nguyenLieuService = NguyenLieuService.getInstance();
-        
-        // Thiết lập NguyenLieuDao cho service
         INguyenLieuDao nguyenLieuDao = NguyenLieuDao.getInstance();
         nguyenLieuService.setNguyenLieuDaoService(nguyenLieuDao);
-        
-        // Tải dữ liệu từ cơ sở dữ liệu
         nguyenLieuService.loadAllNguyenLieuFromDatabase();
     }
 
     @Override
     public List<NguyenLieuDTO> getAllNguyenLieu() {
-        // Tải lại dữ liệu mỗi khi getAllNguyenLieu được gọi để đảm bảo dữ liệu luôn mới nhất
         nguyenLieuService.loadAllNguyenLieuFromDatabase();
         
         List<NguyenLieuDTO> nlDtoList = new ArrayList();
@@ -66,7 +60,6 @@ public class NguyenLieuController implements INguyenLieuController{
         try {
             boolean result = nguyenLieuService.addNguyenLieu(toModel(nlDto));
             if (result) {
-                // Nếu thêm thành công, tải lại dữ liệu
                 nguyenLieuService.loadAllNguyenLieuFromDatabase();
             }
             return result;
@@ -81,7 +74,6 @@ public class NguyenLieuController implements INguyenLieuController{
         try {
             boolean result = nguyenLieuService.updateNguyenLieu(toModel(nlDto));
             if (result) {
-                // Nếu cập nhật thành công, tải lại dữ liệu
                 nguyenLieuService.loadAllNguyenLieuFromDatabase();
             }
             return result;
@@ -95,7 +87,6 @@ public class NguyenLieuController implements INguyenLieuController{
     public boolean deleteNguyenLieu(int id) {
         boolean result = nguyenLieuService.deleteNguyenLieu(id);
         if (result) {
-            // Nếu xóa thành công, tải lại dữ liệu
             nguyenLieuService.loadAllNguyenLieuFromDatabase();
         }
         return result;
@@ -111,7 +102,6 @@ public class NguyenLieuController implements INguyenLieuController{
     }
 
     private NguyenLieuDTO toDto(NguyenLieu model) {
-        // Lấy tên nhóm thực phẩm từ NhomThucPhamDao nếu có nhomThucPhamId
         String tenNhom = "";
         if (model.getNhomThucPhamId() > 0) {
             try {
@@ -121,7 +111,6 @@ public class NguyenLieuController implements INguyenLieuController{
                     tenNhom = nhomEntity.tenNhom();
                 }
             } catch (Exception ex) {
-                // Bỏ qua nếu không lấy được tên nhóm
             }
         }
         

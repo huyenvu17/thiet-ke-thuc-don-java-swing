@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel Món Ăn
+ *
+ * @author ADMIN
  */
 public class MonAnPanel extends JPanel {
     private JTable table;

@@ -4,7 +4,8 @@ import entity.NhomThucPhamEntity;
 import java.util.List;
 
 /**
- * Interface for NhomThucPham Data Access Object
+ *
+ * @author ADMIN
  */
 public interface INhomThucPhamDao {
     List<NhomThucPhamEntity> getAllNhomThucPham();

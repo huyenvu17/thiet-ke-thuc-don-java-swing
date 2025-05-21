@@ -4,7 +4,8 @@ import entity.MonAnEntity;
 import java.util.List;
 
 /**
- * Interface for MonAn Data Access Object
+ *
+ * @author ADMIN
  */
 public interface IMonAnDao {
     List<MonAnEntity> getAllMonAn();

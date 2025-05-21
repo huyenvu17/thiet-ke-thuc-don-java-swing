@@ -10,33 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for ChiTietThucDon entity
+ *
+ * @author ADMIN
  */
 public class ChiTietThucDonDao implements IChiTietThucDonDao {
     
     private static ChiTietThucDonDao instance;
-    
-    /**
-     * Get singleton instance of ChiTietThucDonDao
-     * @return ChiTietThucDonDao instance
-     */
+
     public static synchronized ChiTietThucDonDao getInstance() {
         if (ChiTietThucDonDao.instance == null) {
             ChiTietThucDonDao.instance = new ChiTietThucDonDao();
         }
         return instance;
     }
-    
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private ChiTietThucDonDao() {
     }
-    
-    /**
-     * Get all menu details from the database
-     * @return List of ChiTietThucDonEntity objects
-     */
+
     @Override
     public List<ChiTietThucDonEntity> getAllChiTietThucDon() {
         List<ChiTietThucDonEntity> chiTietList = new ArrayList<>();
@@ -66,12 +56,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return chiTietList;
     }
-    
-    /**
-     * Get all menu details for a specific menu
-     * @param thucDonId The ID of the menu
-     * @return List of ChiTietThucDonEntity objects
-     */
+
     @Override
     public List<ChiTietThucDonEntity> getByThucDonId(int thucDonId) {
         List<ChiTietThucDonEntity> chiTietList = new ArrayList<>();
@@ -105,12 +90,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return chiTietList;
     }
-    
-    /**
-     * Add a new menu detail to the database
-     * @param chiTiet ChiTietThucDonEntity to add
-     * @return ID of the newly inserted menu detail, or -1 if failed
-     */
+
     @Override
     public int addChiTietThucDon(ChiTietThucDonEntity chiTiet) {
         String query = "INSERT INTO chitietthucdon (thuc_don_id, ngay, buoi, mon_an_id) VALUES (?, ?, ?, ?)";
@@ -141,12 +121,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return newId;
     }
-    
-    /**
-     * Get a menu detail by ID
-     * @param id ID of the menu detail to retrieve
-     * @return ChiTietThucDonEntity if found, null otherwise
-     */
+
     @Override
     public ChiTietThucDonEntity getChiTietThucDonById(int id) {
         String query = "SELECT ct.id, ct.thuc_don_id, ct.ngay, ct.buoi, ct.mon_an_id, m.ten_mon " +
@@ -179,12 +154,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return chiTiet;
     }
-    
-    /**
-     * Update an existing menu detail in the database
-     * @param chiTiet ChiTietThucDonEntity to update
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean updateChiTietThucDon(ChiTietThucDonEntity chiTiet) {
         String query = "UPDATE chitietthucdon SET thuc_don_id = ?, ngay = ?, buoi = ?, mon_an_id = ? WHERE id = ?";
@@ -208,12 +178,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return success;
     }
-    
-    /**
-     * Delete a menu detail from the database by ID
-     * @param id ID of the menu detail to delete
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean deleteChiTietThucDon(int id) {
         String query = "DELETE FROM chitietthucdon WHERE id = ?";
@@ -233,12 +198,7 @@ public class ChiTietThucDonDao implements IChiTietThucDonDao {
         
         return success;
     }
-    
-    /**
-     * Delete all menu details for a specific menu
-     * @param thucDonId The ID of the menu
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean deleteByThucDonId(int thucDonId) {
         String query = "DELETE FROM chitietthucdon WHERE thuc_don_id = ?";

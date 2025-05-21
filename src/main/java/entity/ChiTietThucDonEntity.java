@@ -1,7 +1,8 @@
 package entity;
 
 /**
- * Entity class: ChiTietThucDonEntity
+ *
+ * @author ADMIN
  */
 public record ChiTietThucDonEntity(
     int id,
@@ -11,9 +12,6 @@ public record ChiTietThucDonEntity(
     int monAnId,
     String tenMon
 ) {
-    /**
-     * Constructor with only the database fields (no display fields)
-     */
     public ChiTietThucDonEntity(int id, int thucDonId, int ngay, String buoi, int monAnId) {
         this(id, thucDonId, ngay, buoi, monAnId, null);
     }

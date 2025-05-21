@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO cho bảng nguyên liệu
+ *
+ * @author ADMIN
  */
 public class NguyenLieuDao implements INguyenLieuDao {
     
@@ -20,16 +21,10 @@ public class NguyenLieuDao implements INguyenLieuDao {
         }
         return instance;
     }
-    
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private NguyenLieuDao() {
     }
-    
-    /**
-     * Map a database result set to a NguyenLieuEntity object
-     */
+
     private NguyenLieuEntity mapResultSetToNguyenLieu(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String tenNguyenLieu = rs.getString("ten_nguyen_lieu");
@@ -40,7 +35,6 @@ public class NguyenLieuDao implements INguyenLieuDao {
         try {
             nhomThucPhamId = rs.getInt("nhom_thuc_pham_id");
         } catch (SQLException e) {
-            // Cột không tồn tại trong kết quả - giữ giá trị mặc định là 0
         }
         
         return new NguyenLieuEntity(id, tenNguyenLieu, khoiLuong, donGia, nhomThucPhamId);
@@ -89,10 +83,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
         
         return newId;
     }
-    
-    /**
-     * Get a NguyenLieuEntity by ID
-     */
+
     public NguyenLieuEntity getById(int id) {
         NguyenLieuEntity entity = null;
         StringBuilder sqlBuilder = new StringBuilder();
@@ -111,10 +102,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
         
         return entity;
     }
-    
-    /**
-     * Update an existing NguyenLieuEntity
-     */
+
     public boolean updateNguyenLieu(NguyenLieuEntity entity) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("UPDATE nguyenlieu SET ");
@@ -135,10 +123,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
         
         return success;
     }
-    
-    /**
-     * Delete a NguyenLieuEntity by ID
-     */
+
     public boolean deleteNguyenLieu(int id) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("DELETE FROM nguyenlieu WHERE id = ");

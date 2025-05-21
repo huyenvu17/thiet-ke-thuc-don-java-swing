@@ -4,7 +4,8 @@ import entity.ThucDonEntity;
 import java.util.List;
 
 /**
- * Interface for ThucDon Data Access Object
+ *
+ * @author ADMIN
  */
 public interface IThucDonDao {
     List<ThucDonEntity> getAllThucDon();

@@ -10,33 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DAO cho bảng thực đơn
+ *
+ * @author ADMIN
  */
 public class ThucDonDao implements IThucDonDao {
     
     private static ThucDonDao instance;
-    
-    /**
-     * Get singleton instance of ThucDonDao
-     * @return ThucDonDao instance
-     */
+
     public static synchronized ThucDonDao getInstance() {
         if (ThucDonDao.instance == null) {
             ThucDonDao.instance = new ThucDonDao();
         }
         return instance;
     }
-    
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private ThucDonDao() {
     }
-    
-    /**
-     * Get all menus from the database
-     * @return List of ThucDonEntity objects
-     */
+
     @Override
     public List<ThucDonEntity> getAllThucDon() {
         List<ThucDonEntity> thucDonList = new ArrayList<>();
@@ -61,12 +51,7 @@ public class ThucDonDao implements IThucDonDao {
         
         return thucDonList;
     }
-    
-    /**
-     * Add a new menu to the database
-     * @param thucDon ThucDonEntity to add
-     * @return ID of the newly inserted menu, or -1 if failed
-     */
+
     @Override
     public int addThucDon(ThucDonEntity thucDon) {
         String query = "INSERT INTO thucdon (ten_thuc_don, so_ngay) VALUES (?, ?)";
@@ -95,12 +80,7 @@ public class ThucDonDao implements IThucDonDao {
         
         return newId;
     }
-    
-    /**
-     * Get a menu by ID
-     * @param id ID of the menu to retrieve
-     * @return ThucDonEntity if found, null otherwise
-     */
+
     @Override
     public ThucDonEntity getThucDonById(int id) {
         String query = "SELECT id, ten_thuc_don, so_ngay FROM thucdon WHERE id = ?";
@@ -127,12 +107,7 @@ public class ThucDonDao implements IThucDonDao {
         
         return thucDon;
     }
-    
-    /**
-     * Update an existing menu in the database
-     * @param thucDon ThucDonEntity to update
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean updateThucDon(ThucDonEntity thucDon) {
         String query = "UPDATE thucdon SET ten_thuc_don = ?, so_ngay = ? WHERE id = ?";
@@ -154,12 +129,7 @@ public class ThucDonDao implements IThucDonDao {
         
         return success;
     }
-    
-    /**
-     * Delete a menu from the database by ID
-     * @param id ID of the menu to delete
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean deleteThucDon(int id) {
         String query = "DELETE FROM thucdon WHERE id = ?";

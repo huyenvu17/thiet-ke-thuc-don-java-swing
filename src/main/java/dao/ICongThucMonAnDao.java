@@ -4,7 +4,8 @@ import entity.CongThucMonAnEntity;
 import java.util.List;
 
 /**
- * Interface for CongThucMonAn Data Access Object
+ *
+ * @author ADMIN
  */
 public interface ICongThucMonAnDao {
     List<CongThucMonAnEntity> getAllCongThucMonAn();

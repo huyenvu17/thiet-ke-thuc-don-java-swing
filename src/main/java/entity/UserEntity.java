@@ -1,5 +1,9 @@
 package entity;
 
+/**
+ *
+ * @author ADMIN
+ */
 public class UserEntity {
     private int id;
     private String username;

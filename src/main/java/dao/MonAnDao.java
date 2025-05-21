@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data Access Object for MonAn entity
+ *
+ * @author ADMIN
  */
 public class MonAnDao implements IMonAnDao {
     
@@ -22,17 +23,10 @@ public class MonAnDao implements IMonAnDao {
         }
         return instance;
     }
-    
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private MonAnDao() {
     }
-    
-    /**
-     * Get all dishes from the database
-     * @return List of MonAnEntity objects
-     */
+
     @Override
     public List<MonAnEntity> getAllMonAn() {
         List<MonAnEntity> monAnList = new ArrayList<>();
@@ -58,12 +52,7 @@ public class MonAnDao implements IMonAnDao {
         
         return monAnList;
     }
-    
-    /**
-     * Add a new dish to the database
-     * @param monAn MonAnEntity to add
-     * @return ID of the newly inserted dish, or -1 if failed
-     */
+
     @Override
     public int addMonAn(MonAnEntity monAn) {
         String query = "INSERT INTO monan (ten_mon, loai_mon, cach_che_bien) VALUES (?, ?, ?)";
@@ -93,12 +82,7 @@ public class MonAnDao implements IMonAnDao {
         
         return newId;
     }
-    
-    /**
-     * Update an existing dish in the database
-     * @param monAn MonAnEntity to update
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean updateMonAn(MonAnEntity monAn) {
         String query = "UPDATE monan SET ten_mon = ?, loai_mon = ?, cach_che_bien = ? WHERE id = ?";
@@ -121,12 +105,7 @@ public class MonAnDao implements IMonAnDao {
         
         return success;
     }
-    
-    /**
-     * Delete a dish from the database by ID
-     * @param id ID of the dish to delete
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean deleteMonAn(int id) {
         String query = "DELETE FROM monan WHERE id = ?";
@@ -146,12 +125,7 @@ public class MonAnDao implements IMonAnDao {
         
         return success;
     }
-    
-    /**
-     * Get a dish by ID
-     * @param id ID of the dish to retrieve
-     * @return MonAnEntity if found, null otherwise
-     */
+
     @Override
     public MonAnEntity getMonAnById(int id) {
         String query = "SELECT id, ten_mon, loai_mon, cach_che_bien FROM monan WHERE id = ?";

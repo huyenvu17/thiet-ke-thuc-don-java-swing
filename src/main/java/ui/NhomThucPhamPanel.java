@@ -15,7 +15,8 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
- * Panel Nhóm Thực Phẩm
+ *
+ * @author ADMIN
  */
 public class NhomThucPhamPanel extends JPanel {
     

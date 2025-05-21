@@ -13,7 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 /**
- * Panel đăng nhập và đăng ký
+ *
+ * @author ADMIN
  */
 public class DangNhapDangKyPanel extends JPanel {
     private CardLayout cardLayout;
@@ -274,18 +275,16 @@ public class DangNhapDangKyPanel extends JPanel {
             return;
         }
         
-        // Create login DTO
         UserDTO loginDto = new UserDTO(username, password);
-        
-        // Use controller to login
         UserEntity userEntity = authController.login(loginDto);
         
         if (userEntity != null) {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + userEntity.getFullName());
-            // Notify the listener about successful authentication
             if (authListener != null) {
                 authListener.onAuthenticationSuccess(userEntity);
             }
+            loginUsernameField.setText("");
+            loginPasswordField.setText("");
         } else {
             JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
@@ -309,20 +308,16 @@ public class DangNhapDangKyPanel extends JPanel {
             return;
         }
         
-        // Check if username exists
         if (authController.usernameExists(username)) {
             JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Create registration DTO
         UserDTO registerDto = new UserDTO(username, password, fullName, email, phone);
         
-        // Use controller to register
         if (authController.register(registerDto)) {
             JOptionPane.showMessageDialog(this, "Đăng ký thành công! Bạn có thể đăng nhập.");
             cardLayout.show(cardPanel, "login");
-            // Clear registration fields
             registerUsernameField.setText("");
             registerPasswordField.setText("");
             registerConfirmPasswordField.setText("");

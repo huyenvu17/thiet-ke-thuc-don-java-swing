@@ -12,7 +12,8 @@ import java.util.List;
 import java.math.BigDecimal;
 
 /**
- * Data Access Object for CongThucMonAn entity
+ *
+ * @author ADMIN
  */
 public class CongThucMonAnDao implements ICongThucMonAnDao {
     
@@ -24,17 +25,10 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         }
         return instance;
     }
-    
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private CongThucMonAnDao() {
     }
-    
-    /**
-     * Get all recipe ingredients from the database
-     * @return List of CongThucMonAnEntity objects
-     */
+
     @Override
     public List<CongThucMonAnEntity> getAllCongThucMonAn() {
         List<CongThucMonAnEntity> congThucList = new ArrayList<>();
@@ -67,12 +61,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         
         return congThucList;
     }
-    
-    /**
-     * Get all recipe ingredients for a specific dish
-     * @param monAnId The ID of the dish
-     * @return List of CongThucMonAnEntity objects
-     */
+
     @Override
     public List<CongThucMonAnEntity> getCongThucByMonAnId(int monAnId) {
         List<CongThucMonAnEntity> congThucList = new ArrayList<>();
@@ -109,12 +98,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         
         return congThucList;
     }
-    
-    /**
-     * Add a new recipe ingredient to the database
-     * @param congThuc CongThucMonAnEntity to add
-     * @return ID of the newly inserted recipe ingredient, or -1 if failed
-     */
+
     @Override
     public int addCongThucMonAn(CongThucMonAnEntity congThuc) {
         String query = "INSERT INTO congthucmonan (mon_an_id, nguyen_lieu_id, khoi_luong) VALUES (?, ?, ?)";
@@ -144,12 +128,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         
         return newId;
     }
-    
-    /**
-     * Update an existing recipe ingredient in the database
-     * @param congThuc CongThucMonAnEntity to update
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean updateCongThucMonAn(CongThucMonAnEntity congThuc) {
         String query = "UPDATE congthucmonan SET mon_an_id = ?, nguyen_lieu_id = ?, khoi_luong = ? WHERE id = ?";
@@ -172,12 +151,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         
         return success;
     }
-    
-    /**
-     * Delete a recipe ingredient from the database by ID
-     * @param id ID of the recipe ingredient to delete
-     * @return true if successful, false otherwise
-     */
+
     @Override
     public boolean deleteCongThucMonAn(int id) {
         String query = "DELETE FROM congthucmonan WHERE id = ?";
@@ -222,12 +196,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
         
         return success;
     }
-    
-    /**
-     * Get a recipe ingredient by ID
-     * @param id ID of the recipe ingredient to retrieve
-     * @return CongThucMonAnEntity if found, null otherwise
-     */
+
     @Override
     public CongThucMonAnEntity getCongThucMonAnById(int id) {
         String query = "SELECT ct.id, ct.mon_an_id, ct.nguyen_lieu_id, ct.khoi_luong, " +

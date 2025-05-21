@@ -8,7 +8,8 @@ import entity.NguyenLieuEntity;
 import java.util.List;
 
 /**
- * Interface for NguyenLieu Data Access Object
+ *
+ * @author ADMIN
  */
 public interface INguyenLieuDao {
     List<NguyenLieuEntity> getAllNguyenLieu();

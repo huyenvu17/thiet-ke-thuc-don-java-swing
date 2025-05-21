@@ -4,7 +4,8 @@ import entity.ChiTietThucDonEntity;
 import java.util.List;
 
 /**
- * Interface for ChiTietThucDon Data Access Object
+ *
+ * @author ADMIN
  */
 public interface IChiTietThucDonDao {
     List<ChiTietThucDonEntity> getAllChiTietThucDon();

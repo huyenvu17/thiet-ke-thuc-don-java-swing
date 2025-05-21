@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Panel Danh Sách Thực Đơn
+ *
+ * @author ADMIN
  */
 public class DanhSachThucDonPanel extends JPanel {
     
@@ -234,7 +235,6 @@ public class DanhSachThucDonPanel extends JPanel {
         @SuppressWarnings("unchecked")
         List<ChiTietThucDonEntity> chiTietList = (List<ChiTietThucDonEntity>) thucDonDetails.get("chiTietList");
         
-        // Create a preview dialog with a formatted text area
         JDialog printPreviewDialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), 
                 "Xem trước bản in: " + tenThucDon, true);
         printPreviewDialog.setLayout(new BorderLayout());
@@ -243,19 +243,15 @@ public class DanhSachThucDonPanel extends JPanel {
         previewArea.setEditable(false);
         previewArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         
-        // Format the preview content
         StringBuilder content = new StringBuilder();
         content.append("THỰC ĐƠN: ").append(thucDon.tenThucDon()).append("\n");
         content.append("Số ngày: ").append(thucDon.soNgay()).append("\n\n");
         
-        // Group by day
         for (int day = 1; day <= thucDon.soNgay(); day++) {
             content.append("Ngày ").append(day).append(":\n");
             
-            // Create a final copy of day for use in lambda
             final int currentDay = day;
             
-            // Get meals for this day
             List<ChiTietThucDonEntity> mealsForDay = chiTietList.stream()
                     .filter(chiTiet -> chiTiet.ngay() == currentDay)
                     .sorted((a, b) -> a.buoi().compareTo(b.buoi()))
