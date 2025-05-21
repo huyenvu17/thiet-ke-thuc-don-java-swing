@@ -1,15 +1,13 @@
 package ui;
 
-import dao.CongThucMonAnDao;
-import dao.MonAnDao;
-import dao.NguyenLieuDao;
-import entity.CongThucMonAnEntity;
-import entity.MonAnEntity;
-import entity.NguyenLieuEntity;
+import controller.ICongThucMonAnController;
+import controller.CongThucMonAnController;
+import dto.CongThucMonAnDTO;
+import dto.MonAnDTO;
+import dto.NguyenLieuDTO;
 import entity.UserEntity;
 
 import java.awt.*;
-import java.math.BigDecimal;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import javax.swing.BorderFactory;
 import javax.swing.border.EmptyBorder;
@@ -25,20 +22,19 @@ import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
 /**
- * Panel Công Thức Món Ăn  
+ *
+ * @author ADMIN
  */
 public class CongThucMonAnPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField khoiLuongField;
-    private JComboBox<MonAnEntity> monAnComboBox;
-    private JComboBox<NguyenLieuEntity> nguyenLieuComboBox;
+    private JComboBox<MonAnDTO> monAnComboBox;
+    private JComboBox<NguyenLieuDTO> nguyenLieuComboBox;
     private JPanel buttonsPanel;
     private JPanel inputPanel;
     private JButton themButton, editButton, deleteButton, backButton;
-    private CongThucMonAnDao congThucMonAnDao;
-    private MonAnDao monAnDao;
-    private NguyenLieuDao nguyenLieuDao;
+    private ICongThucMonAnController congThucMonAnController;
     private UserEntity currentUserEntity;
     
     public CongThucMonAnPanel() {
@@ -47,9 +43,7 @@ public class CongThucMonAnPanel extends JPanel {
     
     public CongThucMonAnPanel(UserEntity userEntity) {
         try {
-            this.congThucMonAnDao = CongThucMonAnDao.getInstance();
-            this.monAnDao = MonAnDao.getInstance();
-            this.nguyenLieuDao = NguyenLieuDao.getInstance();
+            this.congThucMonAnController = CongThucMonAnController.getInstance();
             this.currentUserEntity = userEntity;
             initComponents();
             loadCongThucMonAn();
@@ -160,17 +154,17 @@ public class CongThucMonAnPanel extends JPanel {
                 if (selectedRow != -1) {
                     // Get the selected item's data
                     int id = (int) model.getValueAt(selectedRow, 0);
-                    CongThucMonAnEntity selectedCongThuc = congThucMonAnDao.getCongThucMonAnById(id);
+                    CongThucMonAnDTO selectedCongThuc = congThucMonAnController.getCongThucMonAnById(id);
                     
                     if (selectedCongThuc != null) {
                         // Set selected MonAn in combobox
-                        selectMonAnById(selectedCongThuc.monAnId());
+                        selectMonAnById(selectedCongThuc.getMonAnId());
                         
                         // Set selected NguyenLieu in combobox
-                        selectNguyenLieuById(selectedCongThuc.nguyenLieuId());
+                        selectNguyenLieuById(selectedCongThuc.getNguyenLieuId());
                         
                         // Set khối lượng
-                        khoiLuongField.setText(selectedCongThuc.khoiLuong().toString());
+                        khoiLuongField.setText(selectedCongThuc.getKhoiLuong().toString());
                         
                         // Show edit/delete/back buttons, hide add button
                         themButton.setVisible(false);
@@ -191,8 +185,8 @@ public class CongThucMonAnPanel extends JPanel {
     
     private void loadMonAnComboBox() {
         monAnComboBox.removeAllItems();
-        List<MonAnEntity> monAnList = monAnDao.getAllMonAn();
-        for (MonAnEntity monAn : monAnList) {
+        List<MonAnDTO> monAnList = congThucMonAnController.getAllMonAn();
+        for (MonAnDTO monAn : monAnList) {
             monAnComboBox.addItem(monAn);
         }
         
@@ -201,14 +195,14 @@ public class CongThucMonAnPanel extends JPanel {
             if (value == null) {
                 return new JLabel("");
             }
-            return new JLabel(((MonAnEntity) value).tenMon());
+            return new JLabel(((MonAnDTO) value).getTenMon());
         });
     }
     
     private void loadNguyenLieuComboBox() {
         nguyenLieuComboBox.removeAllItems();
-        List<NguyenLieuEntity> nguyenLieuList = nguyenLieuDao.getAllNguyenLieu();
-        for (NguyenLieuEntity nguyenLieu : nguyenLieuList) {
+        List<NguyenLieuDTO> nguyenLieuList = congThucMonAnController.getAllNguyenLieu();
+        for (NguyenLieuDTO nguyenLieu : nguyenLieuList) {
             nguyenLieuComboBox.addItem(nguyenLieu);
         }
         
@@ -217,14 +211,14 @@ public class CongThucMonAnPanel extends JPanel {
             if (value == null) {
                 return new JLabel("");
             }
-            return new JLabel(((NguyenLieuEntity) value).tenNguyenLieu());
+            return new JLabel(((NguyenLieuDTO) value).getTenNguyenLieu());
         });
     }
     
     private void selectMonAnById(int monAnId) {
         for (int i = 0; i < monAnComboBox.getItemCount(); i++) {
-            MonAnEntity monAn = monAnComboBox.getItemAt(i);
-            if (monAn.id() == monAnId) {
+            MonAnDTO monAn = monAnComboBox.getItemAt(i);
+            if (monAn.getId() == monAnId) {
                 monAnComboBox.setSelectedIndex(i);
                 break;
             }
@@ -233,8 +227,8 @@ public class CongThucMonAnPanel extends JPanel {
     
     private void selectNguyenLieuById(int nguyenLieuId) {
         for (int i = 0; i < nguyenLieuComboBox.getItemCount(); i++) {
-            NguyenLieuEntity nguyenLieu = nguyenLieuComboBox.getItemAt(i);
-            if (nguyenLieu.id() == nguyenLieuId) {
+            NguyenLieuDTO nguyenLieu = nguyenLieuComboBox.getItemAt(i);
+            if (nguyenLieu.getId() == nguyenLieuId) {
                 nguyenLieuComboBox.setSelectedIndex(i);
                 break;
             }
@@ -245,19 +239,20 @@ public class CongThucMonAnPanel extends JPanel {
         model.setRowCount(0); // Clear existing rows
 
         try {
-            // Load from database
-            List<CongThucMonAnEntity> congThucList = congThucMonAnDao.getAllCongThucMonAn();
-            for (CongThucMonAnEntity congThuc : congThucList) {
+            // Load from database through controller
+            List<CongThucMonAnDTO> congThucList = congThucMonAnController.getAllCongThucMonAn();
+            for (CongThucMonAnDTO congThuc : congThucList) {
                 Object[] row = {
-                    congThuc.id(),
-                    congThuc.tenMon(),
-                    congThuc.tenNguyenLieu(),
-                    congThuc.khoiLuong()
+                    congThuc.getId(),
+                    congThuc.getTenMonAn(),
+                    congThuc.getTenNguyenLieu(),
+                    congThuc.getKhoiLuong()
                 };
                 model.addRow(row);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải công thức món ăn: " + ex.getMessage(), 
+            JOptionPane.showMessageDialog(this, 
+                    "Lỗi khi tải danh sách công thức: " + ex.getMessage(), 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
@@ -265,43 +260,59 @@ public class CongThucMonAnPanel extends JPanel {
     
     private void addCongThucMonAn() {
         try {
-            MonAnEntity selectedMonAn = (MonAnEntity) monAnComboBox.getSelectedItem();
-            NguyenLieuEntity selectedNguyenLieu = (NguyenLieuEntity) nguyenLieuComboBox.getSelectedItem();
-            String khoiLuongStr = khoiLuongField.getText().trim();
-            
-            if (selectedMonAn == null || selectedNguyenLieu == null || khoiLuongStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
+            // Get selected MonAn
+            MonAnDTO selectedMonAn = (MonAnDTO) monAnComboBox.getSelectedItem();
+            if (selectedMonAn == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn món ăn", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            BigDecimal khoiLuong;
+            // Get selected NguyenLieu
+            NguyenLieuDTO selectedNguyenLieu = (NguyenLieuDTO) nguyenLieuComboBox.getSelectedItem();
+            if (selectedNguyenLieu == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Get khối lượng
+            String khoiLuongText = khoiLuongField.getText().trim();
+            if (khoiLuongText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập khối lượng", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Double khoiLuong;
             try {
-                khoiLuong = new BigDecimal(khoiLuongStr);
-                if (khoiLuong.compareTo(BigDecimal.ZERO) <= 0) {
-                    throw new NumberFormatException("Khối lượng phải lớn hơn 0");
+                khoiLuong = Double.parseDouble(khoiLuongText);
+                if (khoiLuong <= 0) {
+                    JOptionPane.showMessageDialog(this, "Khối lượng phải lớn hơn 0", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Khối lượng không hợp lệ: " + ex.getMessage(), 
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Khối lượng không hợp lệ", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            CongThucMonAnEntity congThuc = new CongThucMonAnEntity(
-                0,
-                selectedMonAn.id(),
-                selectedNguyenLieu.id(),
-                khoiLuong
-            );
+            // Create DTO
+            CongThucMonAnDTO congThucDto = new CongThucMonAnDTO();
+            congThucDto.setMonAnId(selectedMonAn.getId());
+            congThucDto.setNguyenLieuId(selectedNguyenLieu.getId());
+            congThucDto.setKhoiLuong(khoiLuong);
             
-            // Save to database
-            int newId = congThucMonAnDao.addCongThucMonAn(congThuc);
-            if (newId > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm công thức món ăn thành công!");
+            // Save through controller
+            boolean success = congThucMonAnController.addCongThucMonAn(congThucDto);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Thêm công thức thành công!");
                 clearFields();
                 loadCongThucMonAn();
             } else {
-                JOptionPane.showMessageDialog(this, "Thêm công thức món ăn thất bại", 
+                JOptionPane.showMessageDialog(this, "Thêm công thức thất bại", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
@@ -312,51 +323,70 @@ public class CongThucMonAnPanel extends JPanel {
     }
     
     private void editCongThucMonAn() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn công thức cần sửa", 
-                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
         try {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn công thức cần sửa", 
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            
             int id = (int) model.getValueAt(selectedRow, 0);
-            MonAnEntity selectedMonAn = (MonAnEntity) monAnComboBox.getSelectedItem();
-            NguyenLieuEntity selectedNguyenLieu = (NguyenLieuEntity) nguyenLieuComboBox.getSelectedItem();
-            String khoiLuongStr = khoiLuongField.getText().trim();
             
-            if (selectedMonAn == null || selectedNguyenLieu == null || khoiLuongStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", 
+            // Get selected MonAn
+            MonAnDTO selectedMonAn = (MonAnDTO) monAnComboBox.getSelectedItem();
+            if (selectedMonAn == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn món ăn", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            BigDecimal khoiLuong;
+            // Get selected NguyenLieu
+            NguyenLieuDTO selectedNguyenLieu = (NguyenLieuDTO) nguyenLieuComboBox.getSelectedItem();
+            if (selectedNguyenLieu == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nguyên liệu", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Get khối lượng
+            String khoiLuongText = khoiLuongField.getText().trim();
+            if (khoiLuongText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập khối lượng", 
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Double khoiLuong;
             try {
-                khoiLuong = new BigDecimal(khoiLuongStr);
-                if (khoiLuong.compareTo(BigDecimal.ZERO) <= 0) {
-                    throw new NumberFormatException("Khối lượng phải lớn hơn 0");
+                khoiLuong = Double.parseDouble(khoiLuongText);
+                if (khoiLuong <= 0) {
+                    JOptionPane.showMessageDialog(this, "Khối lượng phải lớn hơn 0", 
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Khối lượng không hợp lệ: " + ex.getMessage(), 
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Khối lượng không hợp lệ", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            CongThucMonAnEntity congThuc = new CongThucMonAnEntity(
-                id,
-                selectedMonAn.id(),
-                selectedNguyenLieu.id(),
-                khoiLuong
-            );
+            // Create DTO
+            CongThucMonAnDTO congThucDto = new CongThucMonAnDTO();
+            congThucDto.setId(id);
+            congThucDto.setMonAnId(selectedMonAn.getId());
+            congThucDto.setNguyenLieuId(selectedNguyenLieu.getId());
+            congThucDto.setKhoiLuong(khoiLuong);
             
-            boolean success = congThucMonAnDao.updateCongThucMonAn(congThuc);
+            // Update through controller
+            boolean success = congThucMonAnController.updateCongThucMonAn(congThucDto);
+            
             if (success) {
-                JOptionPane.showMessageDialog(this, "Cập nhật công thức món ăn thành công!");
+                JOptionPane.showMessageDialog(this, "Cập nhật công thức thành công!");
                 clearFields();
                 loadCongThucMonAn();
             } else {
-                JOptionPane.showMessageDialog(this, "Cập nhật công thức món ăn thất bại", 
+                JOptionPane.showMessageDialog(this, "Cập nhật công thức thất bại", 
                         "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
@@ -367,36 +397,38 @@ public class CongThucMonAnPanel extends JPanel {
     }
     
     private void deleteCongThucMonAn() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn công thức cần xóa", 
-                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int id = (int) model.getValueAt(selectedRow, 0);
-        
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Bạn có chắc chắn muốn xóa công thức này?", 
-                "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-        
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                boolean success = congThucMonAnDao.deleteCongThucMonAn(id);
+        try {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn công thức cần xóa", 
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            
+            int id = (int) model.getValueAt(selectedRow, 0);
+            
+            // Confirm deletion
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                    "Bạn có chắc chắn muốn xóa công thức này?", 
+                    "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                // Delete through controller
+                boolean success = congThucMonAnController.deleteCongThucMonAn(id);
+                
                 if (success) {
-                    JOptionPane.showMessageDialog(this, "Xóa công thức món ăn thành công!");
-                    // Reset fields and reload data
+                    JOptionPane.showMessageDialog(this, "Xóa công thức thành công!");
                     clearFields();
                     loadCongThucMonAn();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa công thức món ăn thất bại", 
+                    JOptionPane.showMessageDialog(this, "Xóa công thức thất bại", 
                             "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
             }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
     
@@ -408,8 +440,6 @@ public class CongThucMonAnPanel extends JPanel {
             nguyenLieuComboBox.setSelectedIndex(0);
         }
         khoiLuongField.setText("");
-        table.clearSelection();
-        
         themButton.setVisible(true);
         editButton.setVisible(false);
         deleteButton.setVisible(false);

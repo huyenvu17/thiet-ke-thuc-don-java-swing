@@ -7,11 +7,13 @@ import javax.swing.JTabbedPane;
 import java.awt.BorderLayout;
 
 /**
- * Panel Quản Lý
- * 1. Nguyên Liệu
- * 2. Nhóm Thực Phẩm
- * 3. Công Thức Món Ăn
- * 4. Món Ăn
+ *
+ * @author ADMIN
+ *  * Panel Quản Lý
+ *  * 1. Nguyên Liệu
+ *  * 2. Nhóm Thực Phẩm
+ *  * 3. Công Thức Món Ăn
+ *  * 4. Món Ăn
  */
 public class QuanLyPanel extends JPanel {
     

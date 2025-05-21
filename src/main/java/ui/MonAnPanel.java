@@ -1,11 +1,11 @@
 package ui;
 
-import dao.MonAnDao;
-import entity.MonAnEntity;
+import controller.IMonAnController;
+import controller.MonAnController;
+import dto.MonAnDTO;
 import entity.UserEntity;
 import java.awt.*;
-import java.math.BigDecimal;
-import java.sql.SQLException;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,7 +30,7 @@ public class MonAnPanel extends JPanel {
     private JTextArea cachCheBienArea;
     private JPanel buttonsPanel;
     private JButton themButton, editButton, deleteButton, backButton;
-    private MonAnDao monAnDao;
+    private IMonAnController monAnController;
     private UserEntity currentUserEntity;
     
     public MonAnPanel() {
@@ -38,7 +38,7 @@ public class MonAnPanel extends JPanel {
     
     public MonAnPanel(UserEntity userEntity) {
         try {
-            monAnDao = MonAnDao.getInstance();
+            this.monAnController = MonAnController.getInstance();
             this.currentUserEntity = userEntity;
             initComponents();
             loadMonAn();
@@ -172,15 +172,24 @@ public class MonAnPanel extends JPanel {
     private void loadMonAn() {
         model.setRowCount(0); // Clear existing rows
         
-        // Load from database
-        for (MonAnEntity monAn : monAnDao.getAllMonAn()) {
-            Object[] row = {
-                monAn.id(),
-                monAn.tenMon(),
-                monAn.loaiMon(),
-                monAn.cachCheBien()
-            };
-            model.addRow(row);
+        try {
+            // Load from database through controller
+            List<MonAnDTO> danhSachMonAn = monAnController.getAllMonAn();
+            
+            // Add data to table model
+            for (MonAnDTO monAn : danhSachMonAn) {
+                Object[] row = {
+                    monAn.getId(),
+                    monAn.getTenMon(),
+                    monAn.getLoaiMon(),
+                    monAn.getCachCheBien()
+                };
+                model.addRow(row);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                    "Lỗi khi tải danh sách món ăn: " + ex.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -197,12 +206,13 @@ public class MonAnPanel extends JPanel {
         }
         
         try {
-            // Create a new MonAnEntity
-            MonAnEntity monAn = new MonAnEntity(0, ten, loaiMonAn, cachCheBien);
+            // Create a DTO object
+            MonAnDTO monAnDto = new MonAnDTO(0, ten, loaiMonAn, cachCheBien);
             
-            // Save to database
-            int newId = monAnDao.addMonAn(monAn);
-            if (newId > 0) {
+            // Add through controller
+            boolean success = monAnController.addMonAn(monAnDto);
+            
+            if (success) {
                 JOptionPane.showMessageDialog(this, "Thêm món ăn thành công!");
                 // Reset fields and reload data
                 clearFields();
@@ -238,11 +248,12 @@ public class MonAnPanel extends JPanel {
         }
         
         try {
-            // Create updated MonAnEntity
-            MonAnEntity monAn = new MonAnEntity(id, ten, loaiMonAn, cachCheBien);
+            // Create updated DTO
+            MonAnDTO monAnDto = new MonAnDTO(id, ten, loaiMonAn, cachCheBien);
             
-            // Update in database
-            boolean success = monAnDao.updateMonAn(monAn);
+            // Update through controller
+            boolean success = monAnController.updateMonAn(monAnDto);
+            
             if (success) {
                 JOptionPane.showMessageDialog(this, "Cập nhật món ăn thành công!");
                 // Reset fields and reload data
@@ -268,13 +279,16 @@ public class MonAnPanel extends JPanel {
         
         int id = (int) model.getValueAt(selectedRow, 0);
         
+        // Confirm deletion
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa món ăn này?", 
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                boolean success = monAnDao.deleteMonAn(id);
+                // Delete through controller
+                boolean success = monAnController.deleteMonAn(id);
+                
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
                     // Reset fields and reload data
@@ -295,9 +309,6 @@ public class MonAnPanel extends JPanel {
         tenField.setText("");
         loaiMonAnComboBox.setSelectedIndex(0);
         cachCheBienArea.setText("");
-        table.clearSelection();
-        
-        // Reset button visibility
         themButton.setVisible(true);
         editButton.setVisible(false);
         deleteButton.setVisible(false);

@@ -5,8 +5,6 @@
 package model;
 
 import doanthietkethucdon.BHException;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  *
@@ -17,14 +15,14 @@ public class NguyenLieu {
     private int id;
     private String tenNguyenLieu;
     private Double khoiLuong;
-    private BigDecimal donGia;
+    private Double donGia;
     private int nhomThucPhamId;
 
     public NguyenLieu(
             int id,
             String tenNguyenLieu,
             Double khoiLuong,
-            BigDecimal donGia) throws BHException {
+            Double donGia) throws BHException {
         this(id, tenNguyenLieu, khoiLuong, donGia, 0);
     }
     
@@ -32,7 +30,7 @@ public class NguyenLieu {
             int id,
             String tenNguyenLieu,
             Double khoiLuong,
-            BigDecimal donGia,
+            Double donGia,
             int nhomThucPhamId) throws BHException {
         setId(id);
         setTenNguyenLieu(tenNguyenLieu);
@@ -86,14 +84,14 @@ public class NguyenLieu {
     /**
      * @return the donGia
      */
-    public BigDecimal getDonGia() {
+    public Double getDonGia() {
         return donGia;
     }
 
     /**
      * @param donGia the donGia to set
      */
-    public final void setDonGia(BigDecimal donGia) {
+    public final void setDonGia(Double donGia) {
         this.donGia = donGia;
     }
     

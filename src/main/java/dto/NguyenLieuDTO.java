@@ -4,8 +4,6 @@
  */
 package dto;
 
-import java.math.BigDecimal;
-
 /**
  *
  * @author ADMIN
@@ -14,7 +12,7 @@ public class NguyenLieuDTO {
     private int id;
     private String tenNguyenLieu;
     private Double khoiLuong;
-    private BigDecimal donGia;
+    private Double donGia;
     private int nhomThucPhamId;
     private String tenNhomThucPham;
     
@@ -23,14 +21,22 @@ public class NguyenLieuDTO {
     }
     
     // Constructor with all fields except ID
-    public NguyenLieuDTO(String tenNguyenLieu, Double khoiLuong, BigDecimal donGia) {
+    public NguyenLieuDTO(String tenNguyenLieu, Double khoiLuong, Double donGia) {
+        this.tenNguyenLieu = tenNguyenLieu;
+        this.khoiLuong = khoiLuong;
+        this.donGia = donGia;
+    }
+    
+    // Constructor with ID, tenNguyenLieu, khoiLuong, donGia
+    public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, Double donGia) {
+        this.id = id;
         this.tenNguyenLieu = tenNguyenLieu;
         this.khoiLuong = khoiLuong;
         this.donGia = donGia;
     }
     
     // Constructor with all fields
-    public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, BigDecimal donGia, 
+    public NguyenLieuDTO(int id, String tenNguyenLieu, Double khoiLuong, Double donGia, 
                         int nhomThucPhamId, String tenNhomThucPham) {
         this.id = id;
         this.tenNguyenLieu = tenNguyenLieu;
@@ -65,11 +71,11 @@ public class NguyenLieuDTO {
         this.khoiLuong = khoiLuong;
     }
 
-    public BigDecimal getDonGia() {
+    public Double getDonGia() {
         return donGia;
     }
 
-    public void setDonGia(BigDecimal donGia) {
+    public void setDonGia(Double donGia) {
         this.donGia = donGia;
     }
     

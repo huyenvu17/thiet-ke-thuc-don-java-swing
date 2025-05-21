@@ -1,29 +1,29 @@
 package ui;
 
+import controller.IThietKeThucDonController;
+import controller.ThietKeThucDonController;
+import dto.ThietKeThucDonDTO;
+import dto.NguyenLieuDTO;
+import dto.NhomThucPhamDTO;
 import entity.*;
-import service.ThucDonService;
-import dao.MonAnDao;
-import dao.NguyenLieuDao;
-import dao.NhomThucPhamDao;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Panel Thiết Kế Thực Đơn
+ *
+ * @author ADMIN
  */
 public class ThietKeThucDonPanel extends JPanel {
     
-    private final ThucDonService thucDonService;
-    private final MonAnDao monAnDao;
-    private final NguyenLieuDao nguyenLieuDao;
-    private final NhomThucPhamDao nhomThucPhamDao;
+    private final IThietKeThucDonController thietKeThucDonController;
     private UserEntity currentUserEntity;
     private JTextField tenThucDonField;
     private JSpinner soNgaySpinner;
@@ -41,10 +41,7 @@ public class ThietKeThucDonPanel extends JPanel {
     }
     
     public ThietKeThucDonPanel(UserEntity userEntity) {
-        this.thucDonService = new ThucDonService();
-        this.monAnDao = MonAnDao.getInstance();
-        this.nguyenLieuDao = NguyenLieuDao.getInstance();
-        this.nhomThucPhamDao = NhomThucPhamDao.getInstance();
+        this.thietKeThucDonController = ThietKeThucDonController.getInstance();
         this.nguyenLieuCheckboxes = new HashMap<>();
         this.currentUserEntity = userEntity;
         initComponents();
@@ -131,10 +128,10 @@ public class ThietKeThucDonPanel extends JPanel {
         gbc.gridy = 5;
         gbc.gridwidth = 2;
         
-        List<MonAnEntity> monAnList = monAnDao.getAllMonAn();
-        boolean hasSang = monAnList.stream().anyMatch(m -> "sang".equals(m.loaiMon()));
-        boolean hasTrua = monAnList.stream().anyMatch(m -> "trua".equals(m.loaiMon()));
-        boolean hasXe = monAnList.stream().anyMatch(m -> "xe".equals(m.loaiMon()));
+        Map<String, Boolean> monAnAvailability = thietKeThucDonController.checkMonAnAvailability();
+        boolean hasSang = monAnAvailability.get("sang");
+        boolean hasTrua = monAnAvailability.get("trua");
+        boolean hasXe = monAnAvailability.get("xe");
         
         if (!hasSang || !hasTrua || !hasXe) {
             JLabel warningLabel = new JLabel("<html><font color='red'>Cảnh báo: Thiếu món ăn cho một số bữa. Vui lòng thêm món ăn trong phần quản lý.</font></html>");
@@ -180,30 +177,28 @@ public class ThietKeThucDonPanel extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("Chọn nguyên liệu theo nhóm thực phẩm"));
         
-        // Lấy danh sách tất cả nhóm thực phẩm
-        List<NhomThucPhamEntity> nhomThucPhamList = nhomThucPhamDao.getAllNhomThucPham();
+        // Lấy danh sách tất cả nhóm thực phẩm thông qua controller
+        List<NhomThucPhamDTO> nhomThucPhamList = thietKeThucDonController.getAllNhomThucPham();
         
         if (nhomThucPhamList.isEmpty()) {
             panel.add(new JLabel("Không có nhóm thực phẩm nào."));
             return panel;
         }
         
-        // Lấy danh sách tất cả nguyên liệu
-        List<NguyenLieuEntity> allNguyenLieu = nguyenLieuDao.getAllNguyenLieu();
+        // Lấy danh sách tất cả nguyên liệu thông qua controller
+        List<NguyenLieuDTO> allNguyenLieu = thietKeThucDonController.getAllNguyenLieu();
         
         // Tạo panel cho mỗi nhóm thực phẩm
-        for (NhomThucPhamEntity nhom : nhomThucPhamList) {
+        for (NhomThucPhamDTO nhom : nhomThucPhamList) {
             JPanel nhomPanel = new JPanel();
             nhomPanel.setLayout(new BorderLayout());
             
             // Tiêu đề panel nhóm
-            String title = nhom.tenNhom() + " (" + nhom.moTa() + ")";
+            String title = nhom.getTenNhom() + " (" + nhom.getMoTa() + ")";
             nhomPanel.setBorder(BorderFactory.createTitledBorder(title));
             
             // Lọc nguyên liệu thuộc nhóm hiện tại
-            List<NguyenLieuEntity> nguyenLieuThuocNhom = allNguyenLieu.stream()
-                    .filter(nl -> nl.nhomThucPhamId() == nhom.id())
-                    .toList();
+            List<NguyenLieuDTO> nguyenLieuThuocNhom = thietKeThucDonController.getNguyenLieuByNhomThucPhamId(nhom.getId());
             
             if (nguyenLieuThuocNhom.isEmpty()) {
                 nhomPanel.add(new JLabel("Không có nguyên liệu thuộc nhóm này."), BorderLayout.CENTER);
@@ -211,17 +206,17 @@ public class ThietKeThucDonPanel extends JPanel {
                 // Tạo panel chứa các checkbox nguyên liệu
                 JPanel checkboxPanel = new JPanel(new GridLayout(0, 3, 10, 5)); // 3 cột
                 
-                for (NguyenLieuEntity nguyenLieu : nguyenLieuThuocNhom) {
-                    String checkboxText = nguyenLieu.tenNguyenLieu() + " (" + 
-                                         nguyenLieu.khoiLuong() + " kg - " + 
-                                         nguyenLieu.donGia() + " VND)";
+                for (NguyenLieuDTO nguyenLieu : nguyenLieuThuocNhom) {
+                    String checkboxText = nguyenLieu.getTenNguyenLieu() + " (" + 
+                                         nguyenLieu.getKhoiLuong() + " kg - " + 
+                                         nguyenLieu.getDonGia() + " VND)";
                     
                     JCheckBox checkBox = new JCheckBox(checkboxText);
                     // Mặc định chọn tất cả nguyên liệu
                     checkBox.setSelected(true);
                     
                     // Lưu checkbox vào map để có thể truy cập sau này
-                    nguyenLieuCheckboxes.put(nguyenLieu.id(), checkBox);
+                    nguyenLieuCheckboxes.put(nguyenLieu.getId(), checkBox);
                     checkboxPanel.add(checkBox);
                 }
                 
@@ -230,11 +225,11 @@ public class ThietKeThucDonPanel extends JPanel {
                 JButton selectAllButton = new JButton("Chọn tất cả");
                 JButton deselectAllButton = new JButton("Bỏ chọn tất cả");
                 
-                final int nhomId = nhom.id();
+                final int nhomId = nhom.getId();
                 
                 selectAllButton.addActionListener(e -> {
-                    for (NguyenLieuEntity nl : nguyenLieuThuocNhom) {
-                        JCheckBox cb = nguyenLieuCheckboxes.get(nl.id());
+                    for (NguyenLieuDTO nl : nguyenLieuThuocNhom) {
+                        JCheckBox cb = nguyenLieuCheckboxes.get(nl.getId());
                         if (cb != null) {
                             cb.setSelected(true);
                         }
@@ -242,8 +237,8 @@ public class ThietKeThucDonPanel extends JPanel {
                 });
                 
                 deselectAllButton.addActionListener(e -> {
-                    for (NguyenLieuEntity nl : nguyenLieuThuocNhom) {
-                        JCheckBox cb = nguyenLieuCheckboxes.get(nl.id());
+                    for (NguyenLieuDTO nl : nguyenLieuThuocNhom) {
+                        JCheckBox cb = nguyenLieuCheckboxes.get(nl.getId());
                         if (cb != null) {
                             cb.setSelected(false);
                         }
@@ -290,15 +285,11 @@ public class ThietKeThucDonPanel extends JPanel {
         int soNgay = (int) soNgaySpinner.getValue();
         
         // Validate and parse budget values
-        Map<String, Double> budgetMap = new HashMap<>();
+        double budgetSang, budgetTrua, budgetXe;
         try {
-            double budgetSang = Double.parseDouble(budgetSangField.getText().trim());
-            double budgetTrua = Double.parseDouble(budgetTruaField.getText().trim());
-            double budgetXe = Double.parseDouble(budgetXeField.getText().trim());
-            
-            budgetMap.put("sang", budgetSang);
-            budgetMap.put("trua", budgetTrua);
-            budgetMap.put("xe", budgetXe);
+            budgetSang = Double.parseDouble(budgetSangField.getText().trim());
+            budgetTrua = Double.parseDouble(budgetTruaField.getText().trim());
+            budgetXe = Double.parseDouble(budgetXeField.getText().trim());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Ngân sách không hợp lệ. Vui lòng nhập số", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
@@ -316,8 +307,18 @@ public class ThietKeThucDonPanel extends JPanel {
             }
         }
         
-        // Sử dụng phương thức generateThucDon có sẵn
-        int thucDonId = thucDonService.generateThucDon(tenThucDon, soNgay, budgetMap);
+        // Create DTO for menu generation
+        ThietKeThucDonDTO thietKeDto = new ThietKeThucDonDTO(
+                tenThucDon,
+                soNgay,
+                budgetSang,
+                budgetTrua,
+                budgetXe,
+                selectedNguyenLieuIds
+        );
+        
+        // Use controller to generate menu
+        int thucDonId = thietKeThucDonController.generateThucDon(thietKeDto);
         
         if (thucDonId <= 0) {
             JOptionPane.showMessageDialog(this, "Không thể tạo thực đơn. Vui lòng thử lại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -339,7 +340,7 @@ public class ThietKeThucDonPanel extends JPanel {
      * Hiển thị kết quả thực đơn đã tạo
      */
     private void displayThucDonResult(int thucDonId, List<Integer> selectedNguyenLieuIds) {
-        Map<String, Object> thucDonInfo = thucDonService.getThucDonWithDetails(thucDonId);
+        Map<String, Object> thucDonInfo = thietKeThucDonController.getThucDonWithDetails(thucDonId);
         if (thucDonInfo.isEmpty()) {
             resultArea.setText("Không thể tải thông tin thực đơn.");
             return;
@@ -388,10 +389,7 @@ public class ThietKeThucDonPanel extends JPanel {
                             default: loaiBua = chiTiet.buoi();
                         }
                         
-                        MonAnEntity monAn = monAnDao.getMonAnById(chiTiet.monAnId());
-                        String tenMon = monAn != null ? monAn.tenMon() : "Không có dữ liệu";
-                        
-                        sb.append("  ").append(loaiBua).append(": ").append(tenMon).append("\n");
+                        sb.append("  ").append(loaiBua).append(": ").append(chiTiet.tenMon()).append("\n");
                     }
                 }
             }

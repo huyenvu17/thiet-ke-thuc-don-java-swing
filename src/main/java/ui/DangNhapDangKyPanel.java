@@ -1,6 +1,8 @@
 package ui;
 
-import dao.UserDao;
+import controller.AuthController;
+import controller.IAuthController;
+import dto.UserDTO;
 import entity.UserEntity;
 import service.AuthService;
 
@@ -19,7 +21,7 @@ public class DangNhapDangKyPanel extends JPanel {
     private JTextField loginUsernameField, registerUsernameField, registerFullNameField, registerEmailField, registerPhoneField;
     private JPasswordField loginPasswordField, registerPasswordField, registerConfirmPasswordField;
     private JButton loginButton, switchToRegisterButton, registerButton, switchToLoginButton;
-    private UserDao userDao = new UserDao();
+    private IAuthController authController;
     private AuthenticationListener authListener;
     
     public interface AuthenticationListener {
@@ -28,6 +30,7 @@ public class DangNhapDangKyPanel extends JPanel {
 
     public DangNhapDangKyPanel(AuthenticationListener listener) {
         this.authListener = listener;
+        this.authController = AuthController.getInstance();
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         cardPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -265,15 +268,20 @@ public class DangNhapDangKyPanel extends JPanel {
     private void handleLogin() {
         String username = loginUsernameField.getText().trim();
         String password = new String(loginPasswordField.getPassword());
+        
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        UserEntity userEntity = userDao.login(username, password);
+        
+        // Create login DTO
+        UserDTO loginDto = new UserDTO(username, password);
+        
+        // Use controller to login
+        UserEntity userEntity = authController.login(loginDto);
+        
         if (userEntity != null) {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + userEntity.getFullName());
-            // Set the current user in the AuthService
-            AuthService.setCurrentUser(userEntity);
             // Notify the listener about successful authentication
             if (authListener != null) {
                 authListener.onAuthenticationSuccess(userEntity);
@@ -290,25 +298,39 @@ public class DangNhapDangKyPanel extends JPanel {
         String fullName = registerFullNameField.getText().trim();
         String email = registerEmailField.getText().trim();
         String phone = registerPhoneField.getText().trim();
+        
         if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || fullName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bắt buộc", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
         if (!password.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, "Mật khẩu xác nhận không khớp", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (userDao.findByUsername(username) != null) {
+        
+        // Check if username exists
+        if (authController.usernameExists(username)) {
             JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        UserEntity userEntity = new UserEntity(0, username, password, fullName, email, phone, "user");
-        if (userDao.addUser(userEntity)) {
+        
+        // Create registration DTO
+        UserDTO registerDto = new UserDTO(username, password, fullName, email, phone);
+        
+        // Use controller to register
+        if (authController.register(registerDto)) {
             JOptionPane.showMessageDialog(this, "Đăng ký thành công! Bạn có thể đăng nhập.");
             cardLayout.show(cardPanel, "login");
+            // Clear registration fields
+            registerUsernameField.setText("");
+            registerPasswordField.setText("");
+            registerConfirmPasswordField.setText("");
+            registerFullNameField.setText("");
+            registerEmailField.setText("");
+            registerPhoneField.setText("");
         } else {
             JOptionPane.showMessageDialog(this, "Đăng ký thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 } 

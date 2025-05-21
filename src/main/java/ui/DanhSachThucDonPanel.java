@@ -1,9 +1,12 @@
 package ui;
 
+import controller.IThucDonController;
+import controller.ThucDonController;
+import dto.ThucDonDTO;
+import dto.ChiTietThucDonDTO;
 import entity.ChiTietThucDonEntity;
 import entity.ThucDonEntity;
 import entity.UserEntity;
-import service.ThucDonService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -17,7 +20,7 @@ import java.util.Map;
  */
 public class DanhSachThucDonPanel extends JPanel {
     
-    private final ThucDonService thucDonService;
+    private final IThucDonController thucDonController;
     private JTable thucDonTable;
     private DefaultTableModel thucDonModel;
     private JTable chiTietTable;
@@ -29,7 +32,7 @@ public class DanhSachThucDonPanel extends JPanel {
     
     public DanhSachThucDonPanel(UserEntity userEntity) {
         this.currentUserEntity = userEntity;
-        thucDonService = new ThucDonService();
+        this.thucDonController = ThucDonController.getInstance();
         initComponents();
         loadThucDonList();
     }
@@ -127,7 +130,7 @@ public class DanhSachThucDonPanel extends JPanel {
     
     private void loadThucDonList() {
         thucDonModel.setRowCount(0);
-        List<Map<String, Object>> thucDonList = thucDonService.getAllThucDonWithDetails();
+        List<Map<String, Object>> thucDonList = thucDonController.getAllThucDonWithDetails();
         
         for (Map<String, Object> item : thucDonList) {
             ThucDonEntity thucDon = (ThucDonEntity) item.get("thucDon");
@@ -145,7 +148,7 @@ public class DanhSachThucDonPanel extends JPanel {
     
     private void loadChiTietThucDon(int thucDonId) {
         chiTietModel.setRowCount(0);
-        Map<String, Object> thucDonDetails = thucDonService.getThucDonWithDetails(thucDonId);
+        Map<String, Object> thucDonDetails = thucDonController.getThucDonWithDetails(thucDonId);
         
         if (thucDonDetails.isEmpty()) {
             return;
@@ -196,7 +199,7 @@ public class DanhSachThucDonPanel extends JPanel {
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = thucDonService.deleteThucDon(thucDonId);
+            boolean success = thucDonController.deleteThucDon(thucDonId);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Đã xóa thực đơn thành công!");
@@ -219,7 +222,7 @@ public class DanhSachThucDonPanel extends JPanel {
         int thucDonId = (int) thucDonModel.getValueAt(selectedRow, 0);
         String tenThucDon = (String) thucDonModel.getValueAt(selectedRow, 1);
         
-        Map<String, Object> thucDonDetails = thucDonService.getThucDonWithDetails(thucDonId);
+        Map<String, Object> thucDonDetails = thucDonController.getThucDonWithDetails(thucDonId);
         
         if (thucDonDetails.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Không thể tìm thấy chi tiết thực đơn", 
@@ -249,34 +252,26 @@ public class DanhSachThucDonPanel extends JPanel {
         for (int day = 1; day <= thucDon.soNgay(); day++) {
             content.append("Ngày ").append(day).append(":\n");
             
-            // Get the meals for this day
-            boolean hasSang = false;
-            boolean hasTrua = false;
-            boolean hasXe = false;
+            // Create a final copy of day for use in lambda
+            final int currentDay = day;
             
-            for (ChiTietThucDonEntity chiTiet : chiTietList) {
-                if (chiTiet.ngay() == day) {
-                    switch (chiTiet.buoi()) {
-                        case "sang":
-                            content.append("  - Bữa sáng: ").append(chiTiet.tenMon()).append("\n");
-                            hasSang = true;
-                            break;
-                        case "trua":
-                            content.append("  - Bữa trưa: ").append(chiTiet.tenMon()).append("\n");
-                            hasTrua = true;
-                            break;
-                        case "xe":
-                            content.append("  - Bữa tối: ").append(chiTiet.tenMon()).append("\n");
-                            hasXe = true;
-                            break;
-                    }
+            // Get meals for this day
+            List<ChiTietThucDonEntity> mealsForDay = chiTietList.stream()
+                    .filter(chiTiet -> chiTiet.ngay() == currentDay)
+                    .sorted((a, b) -> a.buoi().compareTo(b.buoi()))
+                    .toList();
+            
+            if (mealsForDay.isEmpty()) {
+                content.append("  Không có món ăn\n");
+            } else {
+                for (ChiTietThucDonEntity meal : mealsForDay) {
+                    content.append("  ")
+                            .append(formatBuoi(meal.buoi()))
+                            .append(": ")
+                            .append(meal.tenMon())
+                            .append("\n");
                 }
             }
-            
-            // Note any missing meals
-            if (!hasSang) content.append("  - Bữa sáng: (chưa có món ăn)\n");
-            if (!hasTrua) content.append("  - Bữa trưa: (chưa có món ăn)\n");
-            if (!hasXe) content.append("  - Bữa tối: (chưa có món ăn)\n");
             
             content.append("\n");
         }
@@ -286,7 +281,6 @@ public class DanhSachThucDonPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(previewArea);
         printPreviewDialog.add(scrollPane, BorderLayout.CENTER);
         
-        // Add buttons for printing and closing
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton printButton = new JButton("In");
         JButton closeButton = new JButton("Đóng");
@@ -296,7 +290,8 @@ public class DanhSachThucDonPanel extends JPanel {
                 previewArea.print();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(printPreviewDialog, 
-                        "Lỗi khi in: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        "Lỗi khi in: " + ex.getMessage(), 
+                        "Lỗi in", JOptionPane.ERROR_MESSAGE);
             }
         });
         

@@ -34,7 +34,7 @@ public class NguyenLieuDao implements INguyenLieuDao {
         int id = rs.getInt("id");
         String tenNguyenLieu = rs.getString("ten_nguyen_lieu");
         Double khoiLuong = rs.getDouble("khoi_luong");
-        BigDecimal donGia = rs.getBigDecimal("don_gia");
+        Double donGia = rs.getDouble("don_gia");
         int nhomThucPhamId = 0;
         
         try {

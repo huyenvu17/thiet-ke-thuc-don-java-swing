@@ -24,7 +24,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Panel Quản Lý Nguyên Liệu
+ *
+ * @author ADMIN
  */
 public class QuanLyNguyenLieuPanel extends JPanel {
     private JTable table;
@@ -242,7 +243,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         
         try {
             Double khoiLuong = Double.parseDouble(donVi);
-            BigDecimal donGia = new BigDecimal(donGiaStr);
+            Double donGia = Double.parseDouble(donGiaStr);
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(0);
             nlDto.setTenNguyenLieu(ten);
@@ -300,7 +301,7 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         
         try {
             Double khoiLuong = Double.parseDouble(donVi);
-            BigDecimal donGia = new BigDecimal(donGiaStr);
+            Double donGia = Double.parseDouble(donGiaStr);
 
             NguyenLieuDTO nlDto = new NguyenLieuDTO();
             nlDto.setId(id);

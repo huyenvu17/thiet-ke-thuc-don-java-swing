@@ -1,8 +1,9 @@
 package ui;
 
-import dao.UserDao;
+import controller.IUserController;
+import controller.UserController;
+import dto.UserDTO;
 import entity.UserEntity;
-import service.AuthService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,12 +21,13 @@ public class HoSoPanel extends JPanel {
     private JButton btnCapNhat, btnDoiMatKhau;
     private JTable userTable;
     private DefaultTableModel userModel;
-    private UserDao userDao = new UserDao();
+    private IUserController userController;
     private UserEntity currentUserEntity;
     private JComboBox<String> cbRole;
     
     public HoSoPanel(UserEntity userEntity) {
         this.currentUserEntity = userEntity;
+        this.userController = UserController.getInstance();
         initComponents();
     }
     
@@ -148,7 +150,7 @@ public class HoSoPanel extends JPanel {
                     int selectedRow = userTable.getSelectedRow();
                     if (selectedRow != -1) {
                         int userId = (int) userModel.getValueAt(selectedRow, 0);
-                        UserEntity selectedUser = userDao.findById(userId);
+                        UserEntity selectedUser = userController.getUserById(userId);
                         if (selectedUser != null) {
                             tfUsername.setText(selectedUser.getUsername());
                             tfPassword.setForeground(Color.GRAY);
@@ -320,7 +322,7 @@ public class HoSoPanel extends JPanel {
 
     private void loadUserTable() {
         userModel.setRowCount(0);
-        List<UserEntity> userEntities = userDao.getAllUsers();
+        List<UserEntity> userEntities = userController.getAllUsers();
         for (UserEntity u : userEntities) {
             userModel.addRow(new Object[]{u.getId(), u.getUsername(), u.getFullName(), u.getEmail(), u.getPhone(), u.getRole()});
         }
@@ -336,14 +338,6 @@ public class HoSoPanel extends JPanel {
         if (currentPasswordInput.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
                 "Vui lòng nhập mật khẩu hiện tại!", 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // Kiểm tra mật khẩu hiện tại có đúng không - sử dụng AuthService
-        if (!AuthService.checkPassword(currentPasswordInput, currentUserEntity.getPassword())) {
-            JOptionPane.showMessageDialog(this, 
-                "Mật khẩu hiện tại không đúng!", 
                 "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -364,24 +358,16 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Lưu lại mật khẩu cũ để khôi phục nếu cần
-        String oldPassword = currentUserEntity.getPassword();
-        
-        // Cập nhật mật khẩu mới - lưu ý đây là mật khẩu chưa mã hóa
-        // UserDao sẽ xử lý việc mã hóa khi updateUser
-        currentUserEntity.setPassword(newPassword);
-        
-        // Cập nhật thông tin người dùng
-        if (userDao.updateUser(currentUserEntity)) {
+        // Sử dụng controller để đổi mật khẩu
+        if (userController.changePassword(currentUserEntity.getId(), currentPasswordInput, newPassword)) {
             JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công!");
             // Xóa các trường mật khẩu
             tfCurrentPassword.setText("");
             tfPassword.setText("");
             tfConfirmPassword.setText("");
         } else {
-            // Khôi phục mật khẩu cũ nếu cập nhật thất bại
-            currentUserEntity.setPassword(oldPassword);
-            JOptionPane.showMessageDialog(this, "Đổi mật khẩu thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Đổi mật khẩu thất bại! Kiểm tra lại mật khẩu hiện tại.", 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -399,43 +385,43 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra định dạng email
-        if (!email.isEmpty() && !isValidEmail(email)) {
+        // Kiểm tra định dạng email - sử dụng controller để kiểm tra
+        if (!email.isEmpty() && !userController.isValidEmail(email)) {
             JOptionPane.showMessageDialog(this, 
                 "Email không đúng định dạng!", 
                 "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Kiểm tra định dạng số điện thoại
-        if (!soDienThoai.isEmpty() && !isValidPhoneNumber(soDienThoai)) {
+        // Kiểm tra định dạng số điện thoại - sử dụng controller để kiểm tra
+        if (!soDienThoai.isEmpty() && !userController.isValidPhoneNumber(soDienThoai)) {
             JOptionPane.showMessageDialog(this, 
                 "Số điện thoại chỉ được chứa các chữ số!", 
                 "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Cập nhật thông tin cá nhân (không bao gồm mật khẩu)
-        currentUserEntity.setFullName(hoTen);
-        currentUserEntity.setEmail(email);
-        currentUserEntity.setPhone(soDienThoai);
+        // Tạo DTO cho cập nhật thông tin
+        UserDTO userDto = new UserDTO(
+                currentUserEntity.getId(),
+                currentUserEntity.getUsername(),
+                currentUserEntity.getPassword(),
+                hoTen,
+                email,
+                soDienThoai,
+                currentUserEntity.getRole()
+        );
         
-        // Cập nhật thông tin người dùng
-        if (userDao.updateUser(currentUserEntity)) {
+        // Sử dụng controller để cập nhật thông tin
+        if (userController.updateUserProfile(userDto)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
+            // Cập nhật thông tin trong currentUserEntity
+            currentUserEntity.setFullName(hoTen);
+            currentUserEntity.setEmail(email);
+            currentUserEntity.setPhone(soDienThoai);
         } else {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private boolean isValidEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-        return email.matches(emailRegex);
-    }
-
-    private boolean isValidPhoneNumber(String phoneNumber) {
-        String phoneRegex = "^[0-9]+$";
-        return phoneNumber.matches(phoneRegex);
     }
 
     private void clearForm() {
@@ -463,30 +449,29 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        if (!email.isEmpty() && !isValidEmail(email)) {
+        if (!email.isEmpty() && !userController.isValidEmail(email)) {
             JOptionPane.showMessageDialog(this, "Email không đúng định dạng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        if (!phone.isEmpty() && !isValidPhoneNumber(phone)) {
+        if (!phone.isEmpty() && !userController.isValidPhoneNumber(phone)) {
             JOptionPane.showMessageDialog(this, "Số điện thoại chỉ được chứa các chữ số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        if (!role.equals("user") && !role.equals("admin")) {
-            JOptionPane.showMessageDialog(this, "Vai trò phải là 'user' hoặc 'admin'!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        // Tạo DTO cho người dùng mới
+        UserDTO newUserDto = new UserDTO(
+                0, // ID will be assigned by database
+                username,
+                password,
+                fullName,
+                email,
+                phone,
+                role
+        );
         
-        UserEntity newUser = new UserEntity();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        newUser.setFullName(fullName);
-        newUser.setEmail(email);
-        newUser.setPhone(phone);
-        newUser.setRole(role);
-        
-        if (userDao.addUser(newUser)) {
+        // Sử dụng controller để thêm người dùng mới
+        if (userController.addUser(newUserDto)) {
             JOptionPane.showMessageDialog(this, "Thêm người dùng thành công!");
             clearForm();
             loadUserTable();
@@ -503,7 +488,7 @@ public class HoSoPanel extends JPanel {
         }
         
         int userId = (int) userModel.getValueAt(selectedRow, 0);
-        UserEntity userToEdit = userDao.findById(userId);
+        UserEntity userToEdit = userController.getUserById(userId);
         if (userToEdit == null) {
             JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin người dùng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
@@ -519,27 +504,35 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        if (!email.isEmpty() && !isValidEmail(email)) {
+        if (!email.isEmpty() && !userController.isValidEmail(email)) {
             JOptionPane.showMessageDialog(this, "Email không đúng định dạng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        if (!phone.isEmpty() && !isValidPhoneNumber(phone)) {
+        if (!phone.isEmpty() && !userController.isValidPhoneNumber(phone)) {
             JOptionPane.showMessageDialog(this, "Số điện thoại chỉ được chứa các chữ số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        userToEdit.setFullName(fullName);
-        userToEdit.setEmail(email);
-        userToEdit.setPhone(phone);
-        userToEdit.setRole(role);
+        // Tạo DTO cho cập nhật thông tin
+        UserDTO updateUserDto = new UserDTO(
+                userId,
+                userToEdit.getUsername(),
+                userToEdit.getPassword(),
+                fullName,
+                email,
+                phone,
+                role
+        );
         
         String newPassword = new String(tfPassword.getPassword());
+        // Nếu có nhập mật khẩu mới thì cập nhật
         if (!newPassword.isEmpty() && !newPassword.equals("(Để trống nếu không đổi mật khẩu)")) {
-            userToEdit.setPassword(newPassword);
+            updateUserDto.setPassword(newPassword);
         }
         
-        if (userDao.updateUser(userToEdit)) {
+        // Sử dụng controller để cập nhật thông tin
+        if (userController.updateUserProfile(updateUserDto)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
             clearForm();
             loadUserTable();
@@ -565,7 +558,7 @@ public class HoSoPanel extends JPanel {
             JOptionPane.WARNING_MESSAGE);
             
         if (confirm == JOptionPane.YES_OPTION) {
-            if (userDao.deleteUser(userId)) {
+            if (userController.deleteUser(userId)) {
                 JOptionPane.showMessageDialog(this, "Xóa người dùng thành công!");
                 loadUserTable(); // Refresh table
             } else {

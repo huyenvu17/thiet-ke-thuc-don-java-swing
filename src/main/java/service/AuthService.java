@@ -4,7 +4,8 @@ import entity.UserEntity;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
- * Service class for handling authentication and session management
+ *
+ * @author ADMIN
  */
 public class AuthService {
     private static UserEntity currentUserEntity = null;

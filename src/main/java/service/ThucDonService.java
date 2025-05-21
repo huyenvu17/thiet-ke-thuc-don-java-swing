@@ -3,34 +3,103 @@ package service;
 import dao.MonAnDao;
 import dao.ThucDonDao;
 import dao.ChiTietThucDonDao;
+import doanthietkethucdon.BHException;
 import entity.MonAnEntity;
 import entity.ThucDonEntity;
 import entity.ChiTietThucDonEntity;
+import model.ThucDon;
+import model.ChiTietThucDon;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Service for generating menu suggestions
+ *
+ * @author ADMIN
  */
 public class ThucDonService {
-    
+    private static ThucDonService instance;
     private final MonAnDao monAnDao;
     private final ThucDonDao thucDonDao;
     private final ChiTietThucDonDao chiTietThucDonDao;
     private final Random random;
+    private final List<ThucDon> danhSachThucDon;
+    
+    public static ThucDonService getInstance() {
+        if (ThucDonService.instance == null) {
+            ThucDonService.instance = new ThucDonService();
+        }
+        return instance;
+    }
     
     /**
      * Constructor for ThucDonService
      */
-    public ThucDonService() {
+    private ThucDonService() {
         this.monAnDao = MonAnDao.getInstance();
         this.thucDonDao = ThucDonDao.getInstance();
         this.chiTietThucDonDao = ChiTietThucDonDao.getInstance();
         this.random = new Random();
+        this.danhSachThucDon = new ArrayList<>();
+    }
+    
+    /**
+     * Get all menus
+     */
+    public List<ThucDon> getAllThucDon() {
+        loadAllThucDonFromDatabase();
+        return danhSachThucDon;
+    }
+    
+    /**
+     * Load all menus from database
+     */
+    public void loadAllThucDonFromDatabase() {
+        this.danhSachThucDon.clear();
+        List<ThucDonEntity> entityList = this.thucDonDao.getAllThucDon();
+        for (ThucDonEntity entity : entityList) {
+            try {
+                this.danhSachThucDon.add(toModel(entity));
+            } catch (Exception ex) {
+                Logger.getLogger(ThucDonService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    /**
+     * Get menu by ID
+     */
+    public ThucDon getThucDonById(int id) {
+        ThucDonEntity entity = this.thucDonDao.getThucDonById(id);
+        if (entity != null) {
+            try {
+                return toModel(entity);
+            } catch (Exception ex) {
+                Logger.getLogger(ThucDonService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Get all menu details for a specific menu
+     */
+    public List<ChiTietThucDon> getChiTietByThucDonId(int thucDonId) {
+        List<ChiTietThucDon> result = new ArrayList<>();
+        List<ChiTietThucDonEntity> entityList = this.chiTietThucDonDao.getByThucDonId(thucDonId);
+        for (ChiTietThucDonEntity entity : entityList) {
+            try {
+                result.add(toModel(entity));
+            } catch (Exception ex) {
+                Logger.getLogger(ThucDonService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return result;
     }
     
     /**
@@ -43,8 +112,8 @@ public class ThucDonService {
      */
     public int generateThucDon(String tenThucDon, int soNgay, Map<String, Double> maxBudgetPerMeal) {
         // Create the ThucDon
-        ThucDonEntity thucDon = new ThucDonEntity(0, tenThucDon, soNgay);
-        int thucDonId = thucDonDao.addThucDon(thucDon);
+        ThucDon thucDon = new ThucDon(0, tenThucDon, soNgay);
+        int thucDonId = thucDonDao.addThucDon(toEntity(thucDon));
         
         if (thucDonId <= 0) {
             return -1; // Failed to create ThucDon
@@ -73,7 +142,7 @@ public class ThucDonService {
                 // Pick a random dish for this meal
                 MonAnEntity selectedDish = pickRandomDish(availableDishes);
                 
-                ChiTietThucDonEntity chiTiet = new ChiTietThucDonEntity(
+                ChiTietThucDon chiTiet = new ChiTietThucDon(
                         0, 
                         thucDonId, 
                         day, 
@@ -81,7 +150,7 @@ public class ThucDonService {
                         selectedDish.id()
                 );
                 
-                int chiTietId = chiTietThucDonDao.addChiTietThucDon(chiTiet);
+                int chiTietId = chiTietThucDonDao.addChiTietThucDon(toEntity(chiTiet));
                 
                 if (chiTietId <= 0) {
                     success = false;
@@ -101,6 +170,9 @@ public class ThucDonService {
             return -1;
         }
         
+        // Reload data
+        loadAllThucDonFromDatabase();
+        
         return thucDonId;
     }
     
@@ -116,7 +188,7 @@ public class ThucDonService {
     }
     
     /**
-     * Get a menu by ID including all its details
+     * Get a menu by ID including all its details as entities
      * 
      * @param thucDonId The ID of the menu
      * @return A map with the menu and its details
@@ -138,7 +210,7 @@ public class ThucDonService {
     }
     
     /**
-     * Get all menus with their details
+     * Get all menus with their details as entities
      * 
      * @return A list of maps, each containing a menu and its details
      */
@@ -173,6 +245,55 @@ public class ThucDonService {
         // Then delete the menu
         boolean menuDeleted = thucDonDao.deleteThucDon(thucDonId);
         
+        if (detailsDeleted && menuDeleted) {
+            // Reload data if successful
+            loadAllThucDonFromDatabase();
+        }
+        
         return detailsDeleted && menuDeleted;
+    }
+    
+    /**
+     * Convert ThucDon entity to model
+     */
+    public ThucDon toModel(ThucDonEntity entity) {
+        return new ThucDon(
+                entity.id(),
+                entity.tenThucDon(),
+                entity.soNgay());
+    }
+    
+    /**
+     * Convert ThucDon model to entity
+     */
+    public ThucDonEntity toEntity(ThucDon model) {
+        return new ThucDonEntity(
+                model.getId(),
+                model.getTenThucDon(),
+                model.getSoNgay());
+    }
+    
+    /**
+     * Convert ChiTietThucDon entity to model
+     */
+    public ChiTietThucDon toModel(ChiTietThucDonEntity entity) {
+        return new ChiTietThucDon(
+                entity.id(),
+                entity.thucDonId(),
+                entity.ngay(),
+                entity.buoi(),
+                entity.monAnId());
+    }
+    
+    /**
+     * Convert ChiTietThucDon model to entity
+     */
+    public ChiTietThucDonEntity toEntity(ChiTietThucDon model) {
+        return new ChiTietThucDonEntity(
+                model.getId(),
+                model.getThucDonId(),
+                model.getNgay(),
+                model.getBuoi(),
+                model.getMonAnId());
     }
 } 

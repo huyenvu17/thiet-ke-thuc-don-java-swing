@@ -53,7 +53,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                         rs.getInt("id"),
                         rs.getInt("mon_an_id"),
                         rs.getInt("nguyen_lieu_id"),
-                        rs.getBigDecimal("khoi_luong"),
+                        rs.getDouble("khoi_luong"),
                         rs.getString("ten_mon"),
                         rs.getString("ten_nguyen_lieu"),
                         "kg"  // Đơn vị cố định là kg
@@ -94,7 +94,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                             rs.getInt("id"),
                             rs.getInt("mon_an_id"),
                             rs.getInt("nguyen_lieu_id"),
-                            rs.getBigDecimal("khoi_luong"),
+                            rs.getDouble("khoi_luong"),
                             rs.getString("ten_mon"),
                             rs.getString("ten_nguyen_lieu"),
                             "kg"  // Đơn vị cố định là kg
@@ -125,7 +125,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
             
             pstmt.setInt(1, congThuc.monAnId());
             pstmt.setInt(2, congThuc.nguyenLieuId());
-            pstmt.setBigDecimal(3, congThuc.khoiLuong());
+            pstmt.setDouble(3, congThuc.khoiLuong());
             
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
@@ -160,7 +160,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
             
             pstmt.setInt(1, congThuc.monAnId());
             pstmt.setInt(2, congThuc.nguyenLieuId());
-            pstmt.setBigDecimal(3, congThuc.khoiLuong());
+            pstmt.setDouble(3, congThuc.khoiLuong());
             pstmt.setInt(4, congThuc.id());
             
             int affectedRows = pstmt.executeUpdate();
@@ -249,7 +249,7 @@ public class CongThucMonAnDao implements ICongThucMonAnDao {
                         rs.getInt("id"),
                         rs.getInt("mon_an_id"),
                         rs.getInt("nguyen_lieu_id"),
-                        rs.getBigDecimal("khoi_luong"),
+                        rs.getDouble("khoi_luong"),
                         rs.getString("ten_mon"),
                         rs.getString("ten_nguyen_lieu"),
                         "kg"  // Đơn vị cố định là kg

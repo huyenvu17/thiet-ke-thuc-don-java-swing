@@ -1,7 +1,8 @@
 package ui;
 
-import dao.NhomThucPhamDao;
-import entity.NhomThucPhamEntity;
+import controller.INhomThucPhamController;
+import controller.NhomThucPhamController;
+import dto.NhomThucPhamDTO;
 import entity.UserEntity;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class NhomThucPhamPanel extends JPanel {
     
-    private NhomThucPhamDao nhomThucPhamDao;
+    private INhomThucPhamController nhomThucPhamController;
     private JTable nhomThucPhamTable;
     private DefaultTableModel tableModel;
     private JTextField tenNhomField;
@@ -43,10 +44,15 @@ public class NhomThucPhamPanel extends JPanel {
      * Khởi tạo panel quản lý nhóm thực phẩm với UserEntity
      */
     public NhomThucPhamPanel(UserEntity userEntity) {
-        this.nhomThucPhamDao = NhomThucPhamDao.getInstance();
-        this.currentUserEntity = userEntity;
-        initComponents();
-        loadTableData();
+        try {
+            this.nhomThucPhamController = NhomThucPhamController.getInstance();
+            this.currentUserEntity = userEntity;
+            initComponents();
+            loadTableData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khởi tạo: " + ex.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     /**
@@ -211,14 +217,19 @@ public class NhomThucPhamPanel extends JPanel {
         // Xóa dữ liệu cũ trong bảng
         tableModel.setRowCount(0);
         
-        // Lấy danh sách nhóm thực phẩm từ database
-        List<NhomThucPhamEntity> danhSachNhom = nhomThucPhamDao.getAllNhomThucPham();
-        
-        // Thêm dữ liệu vào bảng
-        for (NhomThucPhamEntity nhom : danhSachNhom) {
-            int soLuong = nhomThucPhamDao.getSoLuongNguyenLieu(nhom.id());
-            Object[] rowData = {nhom.id(), nhom.tenNhom(), nhom.moTa(), soLuong};
-            tableModel.addRow(rowData);
+        try {
+            // Lấy danh sách nhóm thực phẩm từ controller
+            List<NhomThucPhamDTO> danhSachNhom = nhomThucPhamController.getAllNhomThucPham();
+            
+            // Thêm dữ liệu vào bảng
+            for (NhomThucPhamDTO nhom : danhSachNhom) {
+                Object[] rowData = {nhom.getId(), nhom.getTenNhom(), nhom.getMoTa(), nhom.getSoLuongNguyenLieu()};
+                tableModel.addRow(rowData);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                    "Lỗi khi tải danh sách nhóm thực phẩm: " + ex.getMessage(), 
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -235,13 +246,13 @@ public class NhomThucPhamPanel extends JPanel {
             return;
         }
         
-        // Tạo đối tượng nhóm thực phẩm mới
-        NhomThucPhamEntity nhomMoi = new NhomThucPhamEntity(0, tenNhom, moTa);
+        // Tạo đối tượng DTO mới
+        NhomThucPhamDTO nhomMoi = new NhomThucPhamDTO(0, tenNhom, moTa);
         
-        // Thêm vào database
-        int id = nhomThucPhamDao.addNhomThucPham(nhomMoi);
+        // Thêm vào database thông qua controller
+        boolean success = nhomThucPhamController.addNhomThucPham(nhomMoi);
         
-        if (id > 0) {
+        if (success) {
             JOptionPane.showMessageDialog(this, "Thêm nhóm thực phẩm thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             resetForm();
             loadTableData();
@@ -251,11 +262,11 @@ public class NhomThucPhamPanel extends JPanel {
     }
     
     /**
-     * Sửa thông tin nhóm thực phẩm
+     * Sửa nhóm thực phẩm
      */
     private void suaNhomThucPham() {
-        if (selectedId <= 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhóm thực phẩm cần sửa", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhóm thực phẩm để sửa", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -268,11 +279,11 @@ public class NhomThucPhamPanel extends JPanel {
             return;
         }
         
-        // Tạo đối tượng nhóm thực phẩm cập nhật
-        NhomThucPhamEntity nhomCapNhat = new NhomThucPhamEntity(selectedId, tenNhom, moTa);
+        // Tạo đối tượng DTO để cập nhật
+        NhomThucPhamDTO nhomCapNhat = new NhomThucPhamDTO(selectedId, tenNhom, moTa);
         
-        // Cập nhật trong database
-        boolean success = nhomThucPhamDao.updateNhomThucPham(nhomCapNhat);
+        // Cập nhật thông qua controller
+        boolean success = nhomThucPhamController.updateNhomThucPham(nhomCapNhat);
         
         if (success) {
             JOptionPane.showMessageDialog(this, "Cập nhật nhóm thực phẩm thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -287,41 +298,43 @@ public class NhomThucPhamPanel extends JPanel {
      * Xóa nhóm thực phẩm
      */
     private void xoaNhomThucPham() {
-        if (selectedId <= 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhóm thực phẩm cần xóa", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (selectedId == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhóm thực phẩm để xóa", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Kiểm tra xem có nguyên liệu nào thuộc nhóm này không
-        int soLuong = nhomThucPhamDao.getSoLuongNguyenLieu(selectedId);
+        // Kiểm tra số lượng nguyên liệu thuộc nhóm
+        int soLuong = nhomThucPhamController.getSoLuongNguyenLieu(selectedId);
         if (soLuong > 0) {
             JOptionPane.showMessageDialog(this, 
-                    "Không thể xóa nhóm này vì đang có " + soLuong + " nguyên liệu thuộc nhóm", 
+                    "Không thể xóa nhóm thực phẩm này vì có " + soLuong + " nguyên liệu đang thuộc nhóm này.", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         // Xác nhận xóa
-        int confirm = JOptionPane.showConfirmDialog(this, 
+        int option = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa nhóm thực phẩm này?", 
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
         
-        if (confirm == JOptionPane.YES_OPTION) {
-            // Xóa từ database
-            boolean success = nhomThucPhamDao.deleteNhomThucPham(selectedId);
-            
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Xóa nhóm thực phẩm thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                resetForm();
-                loadTableData();
-            } else {
-                JOptionPane.showMessageDialog(this, "Xóa nhóm thực phẩm thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+        if (option != JOptionPane.YES_OPTION) {
+            return;
+        }
+        
+        // Xóa thông qua controller
+        boolean success = nhomThucPhamController.deleteNhomThucPham(selectedId);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Xóa nhóm thực phẩm thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            resetForm();
+            loadTableData();
+        } else {
+            JOptionPane.showMessageDialog(this, "Xóa nhóm thực phẩm thất bại", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
     /**
-     * Làm mới form nhập liệu
+     * Reset form về trạng thái ban đầu
      */
     private void resetForm() {
         selectedId = -1;
