@@ -82,7 +82,7 @@ public class MonAnPanel extends JPanel {
         formPanel.add(tenField);
         
         formPanel.add(new JLabel("Loại món ăn:"));
-        loaiMonAnComboBox = new JComboBox<>(new String[]{"sang", "trua", "xe"});
+        loaiMonAnComboBox = new JComboBox<>(new String[]{"sáng", "trưa", "xế"});
         formPanel.add(loaiMonAnComboBox);
         
         formPanel.add(new JLabel("Cách chế biến:"));
@@ -182,7 +182,7 @@ public class MonAnPanel extends JPanel {
                 Object[] row = {
                     monAn.getId(),
                     monAn.getTenMon(),
-                    monAn.getLoaiMon(),
+                    convertLoaiMonToDisplay(monAn.getLoaiMon()),
                     monAn.getCachCheBien()
                 };
                 model.addRow(row);
@@ -194,9 +194,35 @@ public class MonAnPanel extends JPanel {
         }
     }
     
+    private String convertLoaiMonToDisplay(String loaiMon) {
+        switch (loaiMon) {
+            case "sang":
+                return "sáng";
+            case "trua":
+                return "trưa";
+            case "xe":
+                return "xế";
+            default:
+                return loaiMon;
+        }
+    }
+
+    private String convertDisplayToLoaiMon(String displayLoaiMon) {
+        switch (displayLoaiMon) {
+            case "sáng":
+                return "sang";
+            case "trưa":
+                return "trua";
+            case "xế":
+                return "xe";
+            default:
+                return displayLoaiMon;
+        }
+    }
+    
     private void addMonAn() {
         String ten = tenField.getText().trim();
-        String loaiMonAn = loaiMonAnComboBox.getSelectedItem().toString();
+        String loaiMonAn = convertDisplayToLoaiMon(loaiMonAnComboBox.getSelectedItem().toString());
         String cachCheBien = cachCheBienArea.getText().trim();
         
         // Validate input
@@ -238,7 +264,7 @@ public class MonAnPanel extends JPanel {
         
         int id = (int) model.getValueAt(selectedRow, 0);
         String ten = tenField.getText().trim();
-        String loaiMonAn = loaiMonAnComboBox.getSelectedItem().toString();
+        String loaiMonAn = convertDisplayToLoaiMon(loaiMonAnComboBox.getSelectedItem().toString());
         String cachCheBien = cachCheBienArea.getText().trim();
         
         // Validate input
