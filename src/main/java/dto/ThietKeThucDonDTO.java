@@ -76,11 +76,7 @@ public class ThietKeThucDonDTO {
     public void setSelectedNguyenLieuIds(List<Integer> selectedNguyenLieuIds) {
         this.selectedNguyenLieuIds = selectedNguyenLieuIds;
     }
-    
-    /**
-     * Convert budgets to Map format for service
-     * @return Map with budget values for each meal type
-     */
+
     public Map<String, Double> getBudgetMap() {
         return Map.of(
             "sang", budgetSang,
