@@ -14,4 +14,7 @@ public interface IAuthController {
     boolean usernameExists(String username);
     UserEntity getCurrentUser();
     void logout();
+    boolean isValidEmail(String email);
+    boolean isValidPhoneNumber(String phoneNumber);
+
 } 

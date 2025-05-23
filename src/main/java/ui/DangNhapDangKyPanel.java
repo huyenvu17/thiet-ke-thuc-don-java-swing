@@ -312,6 +312,22 @@ public class DangNhapDangKyPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // Kiểm tra định dạng email
+        if (!email.isEmpty() && !authController.isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this,
+                    "Email không đúng định dạng!",
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Kiểm tra định dạng số điện thoại
+        if (!phone.isEmpty() && !authController.isValidPhoneNumber(phone)) {
+            JOptionPane.showMessageDialog(this,
+                    "Số điện thoại không đúng định dạng!",
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         UserDTO registerDto = new UserDTO(username, password, fullName, email, phone);
         

@@ -81,4 +81,23 @@ public class AuthController implements IAuthController {
     public void logout() {
         AuthService.logout();
     }
+    
+    @Override
+    public boolean isValidEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return false;
+        }
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+    
+    @Override
+    public boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isEmpty()) {
+            return false;
+        }
+
+        String phoneRegex = "^[0-9]+$";
+        return phoneNumber.matches(phoneRegex);
+    }
 } 
