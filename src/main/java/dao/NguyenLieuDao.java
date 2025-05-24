@@ -62,19 +62,24 @@ public class NguyenLieuDao implements INguyenLieuDao {
     public int addNguyenLieu(NguyenLieuEntity entity) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("INSERT INTO nguyenlieu");
-        sqlBuilder.append(" (ten_nguyen_lieu, khoi_luong, don_gia)");
+        sqlBuilder.append(" (ten_nguyen_lieu, khoi_luong, don_gia, nhom_thuc_pham_id)");
         sqlBuilder.append(" VALUES (");
-        sqlBuilder.append("'").append(entity.tenNguyenLieu()).append("'");
+        sqlBuilder.append("'").append(entity.tenNguyenLieu().replace("'", "''")).append("'");
         sqlBuilder.append(", ").append(entity.khoiLuong());
         sqlBuilder.append(", ").append(entity.donGia());
-        sqlBuilder.append("); SELECT LAST_INSERT_ID()");
+        sqlBuilder.append(", ").append(entity.nhomThucPhamId());
+        sqlBuilder.append(")");
         
         int newId = -1;
         
         try (DatabaseConnection provider = new DatabaseConnection()) {
-            ResultSet rs = provider.executeQuery(sqlBuilder.toString());
-            if (rs.next()) {
-                newId = rs.getInt(1);
+            int affectedRows = provider.executeUpdate(sqlBuilder.toString());
+            
+            if (affectedRows > 0) {
+                ResultSet rs = provider.executeQuery("SELECT LAST_INSERT_ID()");
+                if (rs.next()) {
+                    newId = rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error adding nguyen lieu: " + e.getMessage());
