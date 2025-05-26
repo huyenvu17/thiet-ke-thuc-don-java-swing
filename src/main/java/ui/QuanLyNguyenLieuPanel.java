@@ -171,9 +171,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         });
     }
     
-    /**
-     * Tải dữ liệu nguyên liệu từ controller
-     */
     private void loadNguyenLieu() {
         model.setRowCount(0);
         
@@ -201,9 +198,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
     }
     
-    /**
-     * Tải danh sách nhóm thực phẩm vào combo box
-     */
     private void loadNhomThucPhamComboBox() {
         try {
             nhomThucPhamComboBox.removeAllItems();
@@ -219,9 +213,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
     }
     
-    /**
-     * Thêm nguyên liệu thông qua controller
-     */
     private void addNguyenLieu() {
         String ten = tenField.getText().trim();
         String donVi = donViField.getText().trim();
@@ -268,9 +259,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
     }
     
-    /**
-     * Cập nhật nguyên liệu thông qua controller
-     */
     private void editNguyenLieu() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -327,9 +315,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         }
     }
     
-    /**
-     * Xóa nguyên liệu thông qua controller
-     */
     private void deleteNguyenLieu() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -372,9 +357,6 @@ public class QuanLyNguyenLieuPanel extends JPanel {
         backButton.setVisible(false);
     }
     
-    /**
-     * Chọn nhóm thực phẩm trong ComboBox dựa vào ID
-     */
     private void selectNhomThucPhamInComboBox(int nhomThucPhamId) {
         for (int i = 0; i < nhomThucPhamComboBox.getItemCount(); i++) {
             NhomThucPhamEntity nhom = nhomThucPhamComboBox.getItemAt(i);

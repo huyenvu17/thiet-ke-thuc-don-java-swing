@@ -41,9 +41,6 @@ public class NhomThucPhamPanel extends JPanel {
         this(null);
     }
     
-    /**
-     * Khởi tạo panel quản lý nhóm thực phẩm với UserEntity
-     */
     public NhomThucPhamPanel(UserEntity userEntity) {
         try {
             this.nhomThucPhamController = NhomThucPhamController.getInstance();
@@ -69,15 +66,10 @@ public class NhomThucPhamPanel extends JPanel {
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
-        
-        // Panel chính chia làm 2 phần: bảng (trái) và form nhập liệu (phải)
         JPanel mainPanel  = new JPanel(new GridLayout(1, 2, 10, 0));
-
-        // Bảng danh sách đặt ở bên trái
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(BorderFactory.createTitledBorder("Danh sách nhóm thực phẩm"));
-        
-        // Tạo model cho bảng
+
         String[] columnNames = {"ID", "Tên nhóm", "Mô tả", "Số lượng nguyên liệu"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -93,7 +85,6 @@ public class NhomThucPhamPanel extends JPanel {
         nhomThucPhamTable.getColumnModel().getColumn(0).setMaxWidth(60);
         nhomThucPhamTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         
-        // Thêm sự kiện click chuột vào hàng trong bảng
         nhomThucPhamTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -103,7 +94,6 @@ public class NhomThucPhamPanel extends JPanel {
                     tenNhomField.setText((String) nhomThucPhamTable.getValueAt(selectedRow, 1));
                     moTaArea.setText((String) nhomThucPhamTable.getValueAt(selectedRow, 2));
                     
-                    // Kích hoạt các nút sửa, xóa
                     if (currentUserEntity != null && currentUserEntity.getRole().equals("admin")) {
                         suaButton.setEnabled(true);
                         xoaButton.setEnabled(true);
@@ -118,8 +108,6 @@ public class NhomThucPhamPanel extends JPanel {
         // Form nhập liệu đặt ở bên phải
         formPanel = new JPanel(new BorderLayout());
         formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin nhóm thực phẩm"));
-        
-        // Tạo panel cho các trường nhập liệu sử dụng GridBagLayout
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(new EmptyBorder(10, 10, 5, 10));
         
@@ -128,7 +116,7 @@ public class NhomThucPhamPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Tên nhóm - label ở trên, input ở dưới
+        // Tên nhóm
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
@@ -138,7 +126,7 @@ public class NhomThucPhamPanel extends JPanel {
         tenNhomField = new JTextField(20);
         inputPanel.add(tenNhomField, gbc);
         
-        // Mô tả - label ở trên, textarea ở dưới
+        // Mô tả
         gbc.gridy = 2;
         inputPanel.add(new JLabel("Mô tả:"), gbc);
         
@@ -159,12 +147,9 @@ public class NhomThucPhamPanel extends JPanel {
         suaButton = new JButton("Sửa");
         xoaButton = new JButton("Xóa");
         lamMoiButton = new JButton("Làm mới");
-        
-        // Mặc định disable các nút sửa, xóa cho đến khi người dùng chọn một hàng trong bảng
         suaButton.setEnabled(false);
         xoaButton.setEnabled(false);
         
-        // Thêm sự kiện cho các nút
         themButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -198,11 +183,9 @@ public class NhomThucPhamPanel extends JPanel {
         buttonPanel.add(xoaButton);
         buttonPanel.add(lamMoiButton);
         
-        // Gắn input panel và button panel vào form panel
         formPanel.add(inputPanel, BorderLayout.CENTER);
         formPanel.add(buttonPanel, BorderLayout.SOUTH);
         
-        // Gắn table panel và form panel vào main panel
         mainPanel.add(tablePanel);
         if (currentUserEntity != null && currentUserEntity.getRole().equals("admin")) {
             mainPanel.add(formPanel);
@@ -215,14 +198,10 @@ public class NhomThucPhamPanel extends JPanel {
      * Tải dữ liệu vào bảng
      */
     private void loadTableData() {
-        // Xóa dữ liệu cũ trong bảng
         tableModel.setRowCount(0);
         
         try {
-            // Lấy danh sách nhóm thực phẩm từ controller
             List<NhomThucPhamDTO> danhSachNhom = nhomThucPhamController.getAllNhomThucPham();
-            
-            // Thêm dữ liệu vào bảng
             for (NhomThucPhamDTO nhom : danhSachNhom) {
                 Object[] rowData = {nhom.getId(), nhom.getTenNhom(), nhom.getMoTa(), nhom.getSoLuongNguyenLieu()};
                 tableModel.addRow(rowData);
@@ -241,16 +220,12 @@ public class NhomThucPhamPanel extends JPanel {
         String tenNhom = tenNhomField.getText().trim();
         String moTa = moTaArea.getText().trim();
         
-        // Kiểm tra dữ liệu đầu vào
         if (tenNhom.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm thực phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Tạo đối tượng DTO mới
         NhomThucPhamDTO nhomMoi = new NhomThucPhamDTO(0, tenNhom, moTa);
-        
-        // Thêm vào database thông qua controller
         boolean success = nhomThucPhamController.addNhomThucPham(nhomMoi);
         
         if (success) {
@@ -274,16 +249,12 @@ public class NhomThucPhamPanel extends JPanel {
         String tenNhom = tenNhomField.getText().trim();
         String moTa = moTaArea.getText().trim();
         
-        // Kiểm tra dữ liệu đầu vào
         if (tenNhom.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập tên nhóm thực phẩm", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        // Tạo đối tượng DTO để cập nhật
         NhomThucPhamDTO nhomCapNhat = new NhomThucPhamDTO(selectedId, tenNhom, moTa);
-        
-        // Cập nhật thông qua controller
         boolean success = nhomThucPhamController.updateNhomThucPham(nhomCapNhat);
         
         if (success) {
@@ -304,7 +275,6 @@ public class NhomThucPhamPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra số lượng nguyên liệu thuộc nhóm
         int soLuong = nhomThucPhamController.getSoLuongNguyenLieu(selectedId);
         if (soLuong > 0) {
             JOptionPane.showMessageDialog(this, 
@@ -313,7 +283,6 @@ public class NhomThucPhamPanel extends JPanel {
             return;
         }
         
-        // Xác nhận xóa
         int option = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa nhóm thực phẩm này?", 
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
@@ -322,7 +291,6 @@ public class NhomThucPhamPanel extends JPanel {
             return;
         }
         
-        // Xóa thông qua controller
         boolean success = nhomThucPhamController.deleteNhomThucPham(selectedId);
         
         if (success) {

@@ -100,14 +100,9 @@ public class DanhSachThucDonPanel extends JPanel {
         chiTietTable = new JTable(chiTietModel);
         JScrollPane chiTietScrollPane = new JScrollPane(chiTietTable);
         chiTietPanel.add(chiTietScrollPane, BorderLayout.CENTER);
-        
-        // Add the panels to the split pane
         splitPane.setTopComponent(thucDonPanel);
         splitPane.setBottomComponent(chiTietPanel);
-        
         add(splitPane, BorderLayout.CENTER);
-        
-        // Add listeners
         thucDonTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = thucDonTable.getSelectedRow();
@@ -143,7 +138,6 @@ public class DanhSachThucDonPanel extends JPanel {
             thucDonModel.addRow(row);
         }
         
-        // Clear chi tiet table when loading new data
         chiTietModel.setRowCount(0);
     }
     
@@ -159,7 +153,6 @@ public class DanhSachThucDonPanel extends JPanel {
         List<ChiTietThucDonEntity> chiTietList = (List<ChiTietThucDonEntity>) thucDonDetails.get("chiTietList");
         
         for (ChiTietThucDonEntity chiTiet : chiTietList) {
-            // Format the meal type
             String buoi = formatBuoi(chiTiet.buoi());
             
             Object[] row = {

@@ -96,14 +96,12 @@ public class HoSoPanel extends JPanel {
             JLabel lblRole = new JLabel("Vai trò:");
             lblRole.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            // Đặt căn lề trái cho các text field
             tfUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfHoTen.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfEmail.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfSoDienThoai.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            // Thêm các thành phần vào inputPanel
             inputPanel.add(lblUsername);
             inputPanel.add(Box.createVerticalStrut(5));
             inputPanel.add(tfUsername);
@@ -168,18 +166,13 @@ public class HoSoPanel extends JPanel {
             buttonPanel.add(btnSua);
             buttonPanel.add(btnXoa);
             buttonPanel.add(btnLamMoi);
-            
             formPanel.add(inputPanel, BorderLayout.CENTER);
             formPanel.add(buttonPanel, BorderLayout.SOUTH);
-            
-            // Thêm cả hai panel vào main panel
             mainPanel.add(tablePanel);
             mainPanel.add(formPanel);
             
-            // Thêm main panel vào center của HoSoPanel
             add(mainPanel, BorderLayout.CENTER);
         } else {
-            // User thường: tách làm 2 phần - thông tin cá nhân và đổi mật khẩu
             JPanel mainPanel = new JPanel(new GridLayout(1, 2, 15, 0));
             mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
             
@@ -204,7 +197,6 @@ public class HoSoPanel extends JPanel {
             tfSoDienThoai = new JTextField(currentUserEntity.getPhone());
             tfSoDienThoai.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
             
-            // Tạo label với căn lề trái
             JLabel lblUsername = new JLabel("Tên đăng nhập:");
             lblUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
             JLabel lblHoTen = new JLabel("Họ và tên:");
@@ -214,7 +206,6 @@ public class HoSoPanel extends JPanel {
             JLabel lblSoDienThoai = new JLabel("Số điện thoại:");
             lblSoDienThoai.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            // Đặt căn lề trái cho các text field
             tfUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfHoTen.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfEmail.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -255,7 +246,6 @@ public class HoSoPanel extends JPanel {
             formPasswordPanel.setLayout(new BoxLayout(formPasswordPanel, BoxLayout.Y_AXIS));
             formPasswordPanel.setBorder(new EmptyBorder(15, 10, 15, 10));
             
-            // Thêm trường mật khẩu cũ
             tfCurrentPassword = new JPasswordField();
             tfCurrentPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
             
@@ -265,7 +255,6 @@ public class HoSoPanel extends JPanel {
             tfConfirmPassword = new JPasswordField();
             tfConfirmPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
             
-            // Tạo label với căn lề trái
             JLabel lblCurrentPassword = new JLabel("Mật khẩu hiện tại:");
             lblCurrentPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
             JLabel lblNewPassword = new JLabel("Mật khẩu mới:");
@@ -273,7 +262,6 @@ public class HoSoPanel extends JPanel {
             JLabel lblConfirmPassword = new JLabel("Xác nhận mật khẩu:");
             lblConfirmPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            // Đặt căn lề trái cho các password field
             tfCurrentPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
             tfConfirmPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -300,14 +288,9 @@ public class HoSoPanel extends JPanel {
             passwordPanel.add(formPasswordPanel, BorderLayout.CENTER);
             passwordPanel.add(passwordButtonPanel, BorderLayout.SOUTH);
             
-            // Thêm cả hai panel vào main panel
             mainPanel.add(infoPanel);
             mainPanel.add(passwordPanel);
-            
-            // Thêm main panel vào center của HoSoPanel
             add(mainPanel, BorderLayout.CENTER);
-            
-            // Thêm action listeners cho các button
             btnCapNhat.addActionListener(e -> handleUpdateProfile());
             btnDoiMatKhau.addActionListener(e -> handleChangePassword());
         }
@@ -330,12 +313,10 @@ public class HoSoPanel extends JPanel {
     }
 
     private void handleChangePassword() {
-        // Lấy mật khẩu hiện tại từ form
         String currentPasswordInput = new String(tfCurrentPassword.getPassword());
         String newPassword = new String(tfPassword.getPassword());
         String confirmPassword = new String(tfConfirmPassword.getPassword());
         
-        // Kiểm tra mật khẩu hiện tại
         if (currentPasswordInput.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
                 "Vui lòng nhập mật khẩu hiện tại!", 
@@ -343,7 +324,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra mật khẩu mới không được để trống
         if (newPassword.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
                 "Vui lòng nhập mật khẩu mới!", 
@@ -351,7 +331,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra mật khẩu xác nhận phải trùng với mật khẩu mới
         if (!newPassword.equals(confirmPassword)) {
             JOptionPane.showMessageDialog(this, 
                 "Mật khẩu xác nhận không khớp với mật khẩu mới!", 
@@ -359,10 +338,8 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Sử dụng controller để đổi mật khẩu
         if (userController.changePassword(currentUserEntity.getId(), currentPasswordInput, newPassword)) {
             JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công!");
-            // Xóa các trường mật khẩu
             tfCurrentPassword.setText("");
             tfPassword.setText("");
             tfConfirmPassword.setText("");
@@ -373,12 +350,10 @@ public class HoSoPanel extends JPanel {
     }
 
     private void handleUpdateProfile() {
-        // Lấy thông tin từ form
         String hoTen = tfHoTen.getText().trim();
         String email = tfEmail.getText().trim();
         String soDienThoai = tfSoDienThoai.getText().trim();
         
-        // Kiểm tra tên không được để trống
         if (hoTen.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
                 "Họ tên không được để trống!", 
@@ -386,7 +361,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra định dạng email - sử dụng controller để kiểm tra
         if (!email.isEmpty() && !userController.isValidEmail(email)) {
             JOptionPane.showMessageDialog(this, 
                 "Email không đúng định dạng!", 
@@ -394,7 +368,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Kiểm tra định dạng số điện thoại - sử dụng controller để kiểm tra
         if (!soDienThoai.isEmpty() && !userController.isValidPhoneNumber(soDienThoai)) {
             JOptionPane.showMessageDialog(this, 
                 "Số điện thoại chỉ được chứa các chữ số!", 
@@ -402,7 +375,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Tạo DTO cho cập nhật thông tin
         UserDTO userDto = new UserDTO(
                 currentUserEntity.getId(),
                 currentUserEntity.getUsername(),
@@ -413,10 +385,8 @@ public class HoSoPanel extends JPanel {
                 currentUserEntity.getRole()
         );
         
-        // Sử dụng controller để cập nhật thông tin
         if (userController.updateUserProfile(userDto)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
-            // Cập nhật thông tin trong currentUserEntity
             currentUserEntity.setFullName(hoTen);
             currentUserEntity.setEmail(email);
             currentUserEntity.setPhone(soDienThoai);
@@ -460,7 +430,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Tạo DTO cho người dùng mới
         UserDTO newUserDto = new UserDTO(
                 0, // ID will be assigned by database
                 username,
@@ -471,7 +440,6 @@ public class HoSoPanel extends JPanel {
                 role
         );
         
-        // Sử dụng controller để thêm người dùng mới
         if (userController.addUser(newUserDto)) {
             JOptionPane.showMessageDialog(this, "Thêm người dùng thành công!");
             clearForm();
@@ -515,7 +483,6 @@ public class HoSoPanel extends JPanel {
             return;
         }
         
-        // Tạo DTO cho cập nhật thông tin
         UserDTO updateUserDto = new UserDTO(
                 userId,
                 userToEdit.getUsername(),
@@ -527,12 +494,10 @@ public class HoSoPanel extends JPanel {
         );
         
         String newPassword = new String(tfPassword.getPassword());
-        // Nếu có nhập mật khẩu mới thì cập nhật
         if (!newPassword.isEmpty() && !newPassword.equals("(Để trống nếu không đổi mật khẩu)")) {
             updateUserDto.setPassword(newPassword);
         }
         
-        // Sử dụng controller để cập nhật thông tin
         if (userController.updateUserProfile(updateUserDto)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!");
             clearForm();
@@ -561,7 +526,7 @@ public class HoSoPanel extends JPanel {
         if (confirm == JOptionPane.YES_OPTION) {
             if (userController.deleteUser(userId)) {
                 JOptionPane.showMessageDialog(this, "Xóa người dùng thành công!");
-                loadUserTable(); // Refresh table
+                loadUserTable();
             } else {
                 JOptionPane.showMessageDialog(this, "Xóa người dùng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }

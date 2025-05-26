@@ -54,15 +54,11 @@ public class MonAnPanel extends JPanel {
         setBorder(new EmptyBorder(5, 5, 5, 5));
         JLabel titleLabel = new JLabel("QUẢN LÝ MÓN ĂN", JLabel.CENTER);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-
-        // Add components to panel
         add(titleLabel, BorderLayout.NORTH);
-        
-        // Create table model with column names
         model = new DefaultTableModel(new String[]{"ID", "Tên món ăn", "Loại món ăn", "Cách chế biến"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make table non-editable
+                return false;
             }
         };
         
@@ -72,8 +68,6 @@ public class MonAnPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
-
-        // Create input panel with form fields
         JPanel inputPanel = new JPanel(new BorderLayout());
         JPanel formPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         
@@ -92,40 +86,31 @@ public class MonAnPanel extends JPanel {
         cachCheBienArea.setWrapStyleWord(true);
         JScrollPane cachCheBienScrollPane = new JScrollPane(cachCheBienArea);
         formPanel.add(cachCheBienScrollPane);
-        
-        // Create buttons panel
         buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
         themButton = new JButton("Thêm");
         editButton = new JButton("Sửa");
         deleteButton = new JButton("Xóa");
         backButton = new JButton("Quay lại");
-        
-        // Add all buttons to panel
         buttonsPanel.add(themButton);
         buttonsPanel.add(editButton);
         buttonsPanel.add(deleteButton);
         buttonsPanel.add(backButton);
         
-        // Set initial visibility
         editButton.setVisible(false);
         deleteButton.setVisible(false);
         backButton.setVisible(false);
         
-        // Add panels to input panel
         inputPanel.add(formPanel, BorderLayout.CENTER);
         inputPanel.add(buttonsPanel, BorderLayout.SOUTH);
         inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         add(inputPanel, BorderLayout.SOUTH);
         
-        // Kiểm tra quyền người dùng
         if(currentUserEntity != null && !currentUserEntity.getRole().equals("admin")) {
             inputPanel.setVisible(false);
             buttonsPanel.setVisible(false);
         }
 
-        // Add action listeners for buttons
         themButton.addActionListener(e -> {
             addMonAn();
         });
@@ -139,28 +124,23 @@ public class MonAnPanel extends JPanel {
         });
         
         backButton.addActionListener(e -> {
-            // Cancel editing and go back to default state
             clearFields();
             table.clearSelection();
         });
         
-        // Add listener for table selection
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
-                    // Row selected - load data and show edit/delete buttons
                     tenField.setText(model.getValueAt(selectedRow, 1).toString());
                     loaiMonAnComboBox.setSelectedItem(model.getValueAt(selectedRow, 2).toString());
                     cachCheBienArea.setText(model.getValueAt(selectedRow, 3).toString());
                     
-                    // Show edit/delete/back buttons, hide add button
                     themButton.setVisible(false);
                     editButton.setVisible(true);
                     deleteButton.setVisible(true);
                     backButton.setVisible(true);
                 } else {
-                    // No row selected - show add button, hide edit/delete buttons
                     themButton.setVisible(true);
                     editButton.setVisible(false);
                     deleteButton.setVisible(false);
@@ -171,13 +151,10 @@ public class MonAnPanel extends JPanel {
     }
     
     private void loadMonAn() {
-        model.setRowCount(0); // Clear existing rows
+        model.setRowCount(0);
         
         try {
-            // Load from database through controller
             List<MonAnDTO> danhSachMonAn = monAnController.getAllMonAn();
-            
-            // Add data to table model
             for (MonAnDTO monAn : danhSachMonAn) {
                 Object[] row = {
                     monAn.getId(),
@@ -225,7 +202,6 @@ public class MonAnPanel extends JPanel {
         String loaiMonAn = convertDisplayToLoaiMon(loaiMonAnComboBox.getSelectedItem().toString());
         String cachCheBien = cachCheBienArea.getText().trim();
         
-        // Validate input
         if (ten.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập tên món ăn", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -233,15 +209,11 @@ public class MonAnPanel extends JPanel {
         }
         
         try {
-            // Create a DTO object
             MonAnDTO monAnDto = new MonAnDTO(0, ten, loaiMonAn, cachCheBien);
-            
-            // Add through controller
             boolean success = monAnController.addMonAn(monAnDto);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Thêm món ăn thành công!");
-                // Reset fields and reload data
                 clearFields();
                 loadMonAn();
             } else {
@@ -267,7 +239,6 @@ public class MonAnPanel extends JPanel {
         String loaiMonAn = convertDisplayToLoaiMon(loaiMonAnComboBox.getSelectedItem().toString());
         String cachCheBien = cachCheBienArea.getText().trim();
         
-        // Validate input
         if (ten.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập tên món ăn", 
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -275,15 +246,11 @@ public class MonAnPanel extends JPanel {
         }
         
         try {
-            // Create updated DTO
             MonAnDTO monAnDto = new MonAnDTO(id, ten, loaiMonAn, cachCheBien);
-            
-            // Update through controller
             boolean success = monAnController.updateMonAn(monAnDto);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, "Cập nhật món ăn thành công!");
-                // Reset fields and reload data
                 clearFields();
                 loadMonAn();
             } else {
@@ -305,20 +272,16 @@ public class MonAnPanel extends JPanel {
         }
         
         int id = (int) model.getValueAt(selectedRow, 0);
-        
-        // Confirm deletion
         int confirm = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa món ăn này?", 
                 "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Delete through controller
                 boolean success = monAnController.deleteMonAn(id);
                 
                 if (success) {
                     JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
-                    // Reset fields and reload data
                     clearFields();
                     loadMonAn();
                 } else {

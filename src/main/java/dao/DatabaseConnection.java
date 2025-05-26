@@ -21,7 +21,7 @@ public class DatabaseConnection implements AutoCloseable {
 
     public static void dangKyDriver() throws ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        System.out.println("MySQL driver đăng ký thành công");
+        System.out.println("MySQL driver dang ky thanh cong");
     }
 
     public DatabaseConnection() throws SQLException {
@@ -69,13 +69,13 @@ public class DatabaseConnection implements AutoCloseable {
             Connection conn = DriverManager.getConnection(sbd.toString());
             
             if (isFirstConnection) {
-                System.out.println("Kết nối database thành công!");
+                System.out.println("Ket noi database thanh cong!");
                 isFirstConnection = false;
             }
             
             return conn;
         } catch (SQLException e) {
-            System.err.println("Kết nối database thất bại!: " + e.getMessage());
+            System.err.println("Ket noi database that bai!: " + e.getMessage());
             throw e;
         }
     }

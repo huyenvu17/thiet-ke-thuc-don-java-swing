@@ -256,7 +256,7 @@ public class DangNhapDangKyPanel extends JPanel {
         });
 
         linkPanel.add(prefixLabel);
-        linkPanel.add(Box.createRigidArea(new Dimension(5, 0))); // Khoảng cách 5px
+        linkPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         linkPanel.add(loginLinkLabel);
         
         registerPanel.add(linkPanel, gbc);

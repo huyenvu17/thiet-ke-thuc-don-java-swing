@@ -176,8 +176,6 @@ public class ThietKeThucDonPanel extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder("Chọn nguyên liệu theo nhóm thực phẩm"));
-        
-        // Lấy danh sách tất cả nhóm thực phẩm thông qua controller
         List<NhomThucPhamDTO> nhomThucPhamList = thietKeThucDonController.getAllNhomThucPham();
         
         if (nhomThucPhamList.isEmpty()) {
@@ -185,25 +183,17 @@ public class ThietKeThucDonPanel extends JPanel {
             return panel;
         }
         
-        // Lấy danh sách tất cả nguyên liệu thông qua controller
         List<NguyenLieuDTO> allNguyenLieu = thietKeThucDonController.getAllNguyenLieu();
-        
-        // Tạo panel cho mỗi nhóm thực phẩm
         for (NhomThucPhamDTO nhom : nhomThucPhamList) {
             JPanel nhomPanel = new JPanel();
             nhomPanel.setLayout(new BorderLayout());
-            
-            // Tiêu đề panel nhóm
             String title = nhom.getTenNhom() + " (" + nhom.getMoTa() + ")";
             nhomPanel.setBorder(BorderFactory.createTitledBorder(title));
-            
-            // Lọc nguyên liệu thuộc nhóm hiện tại
             List<NguyenLieuDTO> nguyenLieuThuocNhom = thietKeThucDonController.getNguyenLieuByNhomThucPhamId(nhom.getId());
             
             if (nguyenLieuThuocNhom.isEmpty()) {
                 nhomPanel.add(new JLabel("Không có nguyên liệu thuộc nhóm này."), BorderLayout.CENTER);
             } else {
-                // Tạo panel chứa các checkbox nguyên liệu
                 JPanel checkboxPanel = new JPanel(new GridLayout(0, 3, 10, 5)); // 3 cột
                 
                 for (NguyenLieuDTO nguyenLieu : nguyenLieuThuocNhom) {
@@ -253,7 +243,7 @@ public class ThietKeThucDonPanel extends JPanel {
             }
             
             panel.add(nhomPanel);
-            panel.add(Box.createRigidArea(new Dimension(0, 10))); // Khoảng cách giữa các nhóm
+            panel.add(Box.createRigidArea(new Dimension(0, 10)));
         }
         
         return panel;
@@ -275,7 +265,6 @@ public class ThietKeThucDonPanel extends JPanel {
     }
     
     private void generateThucDon() {
-        // Validate inputs
         String tenThucDon = tenThucDonField.getText().trim();
         if (tenThucDon.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập tên thực đơn", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -283,8 +272,6 @@ public class ThietKeThucDonPanel extends JPanel {
         }
         
         int soNgay = (int) soNgaySpinner.getValue();
-        
-        // Validate and parse budget values
         double budgetSang, budgetTrua, budgetXe;
         try {
             budgetSang = Double.parseDouble(budgetSangField.getText().trim());
@@ -295,7 +282,6 @@ public class ThietKeThucDonPanel extends JPanel {
             return;
         }
         
-        // Lấy danh sách ID nguyên liệu đã chọn
         List<Integer> selectedNguyenLieuIds = getSelectedNguyenLieuIds();
         
         if (selectedNguyenLieuIds.isEmpty()) {
@@ -368,13 +354,9 @@ public class ThietKeThucDonPanel extends JPanel {
         
         StringBuilder sb = new StringBuilder();
         sb.append("=== THÔNG TIN THỰC ĐƠN ĐÃ TẠO ===\n\n");
-        
-        // Hiển thị thông tin cơ bản của thực đơn
         sb.append("ID: ").append(thucDonId).append("\n");
         sb.append("Tên thực đơn: ").append(thucDon.tenThucDon()).append("\n");
         sb.append("Số ngày: ").append(thucDon.soNgay()).append("\n\n");
-        
-        // Hiển thị thông tin chi tiết về nguyên liệu đã chọn
         sb.append("Số nguyên liệu đã chọn: ").append(selectedNguyenLieuIds.size()).append("\n\n");
         
         // Hiển thị chi tiết thực đơn

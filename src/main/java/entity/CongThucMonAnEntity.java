@@ -9,7 +9,6 @@ public record CongThucMonAnEntity(
         int monAnId,
         int nguyenLieuId,
         Double khoiLuong,
-        // Display fields (not in the database table but joined)
         String tenMon,
         String tenNguyenLieu,
         String donViTinh
